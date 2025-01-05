@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 # SLURM directives (optional, for cluster usage)
@@ -17,7 +16,7 @@ module load cuda12.3/toolkit/12.3
 
 # Activate the Python environment
 source /var/scratch/mmi454/envs/agp-sv/bin/activate
-
+python -c "import tensorflow as tf; print("Num GPUs Available:", len(tf.config.list_physical_devices('GPU')))"
 # Print system info
 echo "Python version:"
 python --version
