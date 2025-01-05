@@ -56,6 +56,11 @@ if __name__ == '__main__':
         #X, y, fn, feature_imp, ds_name = generate_data(n=sample_no_gn, d=feature_no_gn, datatype=ds)
         X, y, fn, feature_imp, g_train = generate_dataset(ds_name, sample_no_gn, feature_no_gn, 42)
         
+        selected_indices = np.random.choice(X.shape[0], size=500, replace=False)
+        X_tbx = X[selected_indices, :]
+
+
+
         n,d = X.shape
     
         shogp = SHOGP(X, y, inte_order=5)
@@ -65,7 +70,7 @@ if __name__ == '__main__':
         #getSOBOL = shogp.OGP.get_sobol()
         #shapley_values_rescaled, shapley_values = shogp.global_shapley_value()
         
-        shogp_values = shogp.local_Shapley_values(X)
+        shogp_values = shogp.local_Shapley_values(X_tbx)
         
 
         shogp_ranks = create_rank(np.array(shogp_values).squeeze())
@@ -73,39 +78,39 @@ if __name__ == '__main__':
         shogp_mean_rank = np.mean(shogp_avg_ranks)
  
         ## SHAP
-        explainer = shap.KernelExplainer(fn, X, l1_reg=True)
-        shap_values = explainer.shap_values(X, nsamples=X_sample_no, l1_reg=True)
+        X_bg = shap.sample(X, 100)
+        explainer = shap.KernelExplainer(fn, X_bg, l1_reg=True)
+        shap_values = explainer.shap_values(X_tbx, nsamples=X_sample_no, l1_reg=True)
         shap_ranks = create_rank(shap_values.squeeze())
         shap_avg_ranks = np.mean(shap_ranks[:,feature_imp], axis=1)
         shap_mean_rank = np.mean(shap_avg_ranks)
 
         ## Sampling SHAP
-        sexplainer = shap.SamplingExplainer(fn, X, l1_reg=True)
-        sshap_values = sexplainer.shap_values(X, nsamples=X_sample_no, l1_reg=True, min_samples_per_feature=1)
+        sexplainer = shap.SamplingExplainer(fn, X_bg, l1_reg=True)
+        sshap_values = sexplainer.shap_values(X_tbx, nsamples=X_sample_no, l1_reg=True, min_samples_per_feature=1)
         sshap_ranks = create_rank(sshap_values.squeeze())
         sshap_avg_ranks = np.mean(sshap_ranks[:,feature_imp], axis=1)
         sshap_mean_rank = np.mean(sshap_avg_ranks)
 
 
-        plt.boxplot([shogp_avg_ranks, shap_avg_ranks, sshap_avg_ranks])
         ## Bivariate SHAP
-        bishap = Bivariate_KernelExplainer(fn, X)
-        bishap_values = bishap.shap_values(X, nsamples=X_sample_no, l1_reg=True)
+        bishap = Bivariate_KernelExplainer(fn, X_bg)
+        bishap_values = bishap.shap_values(X_tbx, nsamples=X_sample_no, l1_reg=True)
         bishap_ranks = create_rank(np.array(bishap_values).squeeze())
         bishap_avg_ranks = np.mean(bishap_ranks[:,feature_imp], axis=1)
         bishap_mean_rank = np.mean(bishap_avg_ranks)
 
 
         ## LIME, Unbiased SHAP, and MAPLE 
-        lime_exp = lime_tabular.LimeTabularExplainer(X, discretize_continuous=False, mode="regression")
-        imputer = removal.MarginalExtension(X, fn)
+        lime_exp = lime_tabular.LimeTabularExplainer(X_bg, discretize_continuous=False, mode="regression")
+        imputer = removal.MarginalExtension(X_bg, fn)
         exp_maple = MAPLE(X, y, X, y)
 
-        ushap_values = np.empty_like(X)
-        lime_values = np.empty_like(X)
-        maple_values = np.empty_like(X)
-        for i in range(X.shape[0]):
-            x = X[i, ]
+        ushap_values = np.empty_like(X_tbx)
+        lime_values = np.empty_like(X_tbx)
+        maple_values = np.empty_like(X_tbx)
+        for i in range(X_tbx.shape[0]):
+            x = X_tbx[i, ]
         
             ## Unbiased kernel shap 
             game = games.PredictionGame(imputer, x)
@@ -135,7 +140,7 @@ if __name__ == '__main__':
         ushap_avg_ranks = np.mean(ushap_ranks[:,feature_imp], axis=1)
         ushap_mean_rank = np.mean(ushap_avg_ranks)
 
-        plt.boxplot([shogp_avg_ranks, shap_avg_ranks, bishap_avg_ranks, sshap_avg_ranks, ushap_avg_ranks, lime_avg_ranks, maple_avg_ranks])
+        #plt.boxplot([shogp_avg_ranks, shap_avg_ranks, bishap_avg_ranks, sshap_avg_ranks, ushap_avg_ranks, lime_avg_ranks, maple_avg_ranks])
 
 
         method_names = ['SHOGP', 'Kernel SHAP', 'Sampling SHAP', 'Unbiased SHAP', 'Bivariate SHAP', 'LIME',  'MAPLE']
