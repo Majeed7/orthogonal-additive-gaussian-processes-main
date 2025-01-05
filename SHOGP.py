@@ -2,7 +2,7 @@ from oak.input_measures import GaussianMeasure, EmpiricalMeasure
 from oak.model_utils import oak_model, save_model
 from oak.utils import get_model_sufficient_statistics, get_prediction_component
 from oak.ortho_rbf_kernel import OrthogonalRBFKernel
-from OAK_shapley.examples.uci.functions_shap import Omega, tensorflow_to_torch, torch_to_tensorflow, numpy_to_torch
+#from OAK_shapley.examples.uci.functions_shap import Omega, tensorflow_to_torch, torch_to_tensorflow, numpy_to_torch
 
 import gpflow
 import numpy as np 
