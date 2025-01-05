@@ -8,6 +8,7 @@ __pycache__/
 _pyenv/
 backup/
 virenv/
+.vscode/    
 *.py[cod]
 *$py.class
 *.egg-info/
