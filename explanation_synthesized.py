@@ -44,10 +44,10 @@ results_xsl = Path('explanation_synthesized.xlsx')
 if __name__ == '__main__':
     np.random.seed(30)
 
-    X_sample_no = 5  # number of sampels for generating explanation
-    smaple_tbX = 5   # number of samples to be explained
-    sample_no_gn = 20 # number of generated synthesized instances 
-    feature_no_gn = 5 # number of features for the synthesized instances
+    X_sample_no = 500  # number of sampels for generating explanation
+    smaple_tbX = 200   # number of samples to be explained
+    sample_no_gn = 2000 # number of generated synthesized instances 
+    feature_no_gn = 18 # number of features for the synthesized instances
 
     # Example usage of one of the functions
     datasets=['Sine Log', 'Sine Cosine', 'Poly Sine', 'Squared Exponentials', 'Tanh Sine', 
