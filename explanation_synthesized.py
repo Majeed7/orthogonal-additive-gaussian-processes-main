@@ -20,7 +20,6 @@ from OAK_shapley.examples.uci.functions_shap import Omega, tensorflow_to_torch, 
 from oak.oak_kernel import OAKKernel
 
 import gpflow
-import torch 
 
 from SHOGP import SHOGP
 from synthesized_datasets import *
