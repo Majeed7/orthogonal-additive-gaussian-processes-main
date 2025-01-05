@@ -22,7 +22,8 @@ from oak.oak_kernel import OAKKernel
 import gpflow
 
 from SHOGP import SHOGP
-from synthesized_datasets import *
+#from synthesized_datasets import *
+from synthesized_data import *
 from datetime import datetime
 
 results_xsl = Path('explanation_synthesized.xlsx')
@@ -31,15 +32,17 @@ results_xsl = Path('explanation_synthesized.xlsx')
 if __name__ == '__main__':
     np.random.seed(30)
 
-    X_sample_no = 200  # number of sampels for generating explanation
-    smaple_tbX = 100   # number of samples to be explained
-    sample_no_gn = 500 # number of generated synthesized instances 
-    feature_no_gn = 15 # number of features for the synthesized instances
+    X_sample_no = 5  # number of sampels for generating explanation
+    smaple_tbX = 5   # number of samples to be explained
+    sample_no_gn = 20 # number of generated synthesized instances 
+    feature_no_gn = 5 # number of features for the synthesized instances
 
     # Example usage of one of the functions
-    datasets = [] #['XOR', 'nonlinear_additive', 'simple_interaction', 'poly_sin']
-    for ds in datasets:
-        X, y, fn, feature_imp, ds_name = generate_data(n=sample_no_gn, d=feature_no_gn, datatype=ds)
+    datasets=['Sine Log', 'Sine Cosine', 'Poly Sine', 'Squared Exponentials', 'Tanh Sine', 
+              'Trigonometric Exponential', 'Exponential Hyperbolic', 'XOR']
+    for ds_name in datasets:
+        #X, y, fn, feature_imp, ds_name = generate_data(n=sample_no_gn, d=feature_no_gn, datatype=ds)
+        X, y, fn, feature_imp, g_train = generate_dataset(ds_name, sample_no_gn, feature_no_gn, 42)
         
         n,d = X.shape
     
@@ -58,15 +61,15 @@ if __name__ == '__main__':
         shogp_mean_rank = np.mean(shogp_avg_ranks)
  
         ## SHAP
-        explainer = shap.KernelExplainer(fn, X, l1_reg=False)
-        shap_values = explainer.shap_values(X, nsamples=X_sample_no, l1_reg=False)
+        explainer = shap.KernelExplainer(fn, X, l1_reg=True)
+        shap_values = explainer.shap_values(X, nsamples=X_sample_no, l1_reg=True)
         shap_ranks = create_rank(shap_values.squeeze())
         shap_avg_ranks = np.mean(shap_ranks[:,feature_imp], axis=1)
         shap_mean_rank = np.mean(shap_avg_ranks)
 
         ## Sampling SHAP
-        sexplainer = shap.SamplingExplainer(fn, X, l1_reg=False)
-        sshap_values = sexplainer.shap_values(X, nsamples=X_sample_no, l1_reg=False, min_samples_per_feature=1)
+        sexplainer = shap.SamplingExplainer(fn, X, l1_reg=True)
+        sshap_values = sexplainer.shap_values(X, nsamples=X_sample_no, l1_reg=True, min_samples_per_feature=1)
         sshap_ranks = create_rank(sshap_values.squeeze())
         sshap_avg_ranks = np.mean(sshap_ranks[:,feature_imp], axis=1)
         sshap_mean_rank = np.mean(sshap_avg_ranks)
@@ -75,7 +78,7 @@ if __name__ == '__main__':
         plt.boxplot([shogp_avg_ranks, shap_avg_ranks, sshap_avg_ranks])
         ## Bivariate SHAP
         bishap = Bivariate_KernelExplainer(fn, X)
-        bishap_values = bishap.shap_values(X, nsamples=X_sample_no, l1_reg=False)
+        bishap_values = bishap.shap_values(X, nsamples=X_sample_no, l1_reg=True)
         bishap_ranks = create_rank(np.array(bishap_values).squeeze())
         bishap_avg_ranks = np.mean(bishap_ranks[:,feature_imp], axis=1)
         bishap_mean_rank = np.mean(bishap_avg_ranks)
