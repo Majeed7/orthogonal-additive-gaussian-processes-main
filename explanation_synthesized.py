@@ -26,6 +26,18 @@ from SHOGP import SHOGP
 from synthesized_data import *
 from datetime import datetime
 
+
+import tensorflow as tf
+
+# List all available GPUs
+gpus = tf.config.list_physical_devices('GPU')
+if gpus:
+    print(f"CUDA is available. GPUs detected: {len(gpus)}")
+else:
+    print("CUDA is not available.")
+
+
+
 results_xsl = Path('explanation_synthesized.xlsx')
 
 
@@ -132,16 +144,16 @@ if __name__ == '__main__':
         df = pd.DataFrame(all_results, index=method_names)
 
         mode = 'a' if results_xsl.exists() else 'w'
-        with pd.ExcelWriter(results_xsl, engine='openpyxl', mode=mode) as writer:
-            # if mode == 'a':
-            #     # Load the existing workbook to check sheet names
-            #     writer.book = load_workbook(results_xsl)
-            #     existing_sheets = writer.book.sheetnames
-            # else:
-            #     existing_sheets = []
+        # Load the existing Excel file
+        book = load_workbook(results_xsl)
         
-            # Write each DataFrame to a specific sheet
-            df.to_excel(writer, sheet_name=ds_name + datetime.now().strftime("%Y%m%d_%H%M%S"), index_label='Method')
+        # Remove the sheet if it already exists
+        if ds_name in book.sheetnames:
+            del book[ds_name]
+        
+        # Write the DataFrame to a new sheet
+        with pd.ExcelWriter(results_xsl, engine="openpyxl", mode="a", if_sheet_exists="replace") as writer:
+            df.to_excel(writer, index=False, sheet_name=ds_name)
 
     print("done!")
     
