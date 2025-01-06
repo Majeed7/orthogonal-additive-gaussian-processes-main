@@ -10,9 +10,11 @@ data_names=['Sine Log', 'Sine Cosine', 'Poly Sine', 'Squared Exponentials', 'Tan
 #def generate_X(n_samples=100, n_features=10):
 #    import numpy as np
 
-def generate_X(num_samples, num_features, influential_indices, correlation_value=0.6):
+def generate_X(num_samples, num_features, influential_indices, correlation_value=0.6, type="correlated"):
+
+    if type != "correlated":
     # Generate samples with a standard normal distribution
-    #return np.random.randn(num_samples, num_features)
+        return np.random.randn(num_samples, num_features)
     """
     Generate synthetic data where specified influential features are correlated with unique non-influential features.
 
@@ -53,9 +55,9 @@ def generate_X(num_samples, num_features, influential_indices, correlation_value
     
     return data
 
-def generate_dataset_sinlog(n_samples=100, n_features=10):
+def generate_dataset_sinlog(n_samples=100, n_features=10, type="correlated"):
     influential_indices = np.arange(0, 2) 
-    X = generate_X(n_samples, n_features, influential_indices = influential_indices, correlation_value=0.6)
+    X = generate_X(n_samples, n_features, influential_indices = influential_indices, correlation_value=0.6, type=type)
 
     def fn(X):
         f1, f2 = X[:, 0], X[:, 1]
@@ -75,13 +77,13 @@ def generate_dataset_sinlog(n_samples=100, n_features=10):
     
     return X, y, fn, influential_indices, 'Sine Log'
 
-def generate_dataset_sin(n_samples=100, n_features=10, noise=0.1, seed=42):
+def generate_dataset_sin(n_samples=100, n_features=10, noise=0.1, type="correlated"):
     """
     Args:
         noise (float): Standard deviation of Gaussian noise to add to the output. 
     """
     influential_indices = np.arange(0, 2)
-    X = generate_X(n_samples, n_features, influential_indices=influential_indices, correlation_value=0.6)
+    X = generate_X(n_samples, n_features, influential_indices=influential_indices, correlation_value=0.6, type=type)
 
     def fn(X):
         f1, f2 = X[:, 0], X[:, 1]
@@ -105,9 +107,9 @@ def generate_dataset_sin(n_samples=100, n_features=10, noise=0.1, seed=42):
     
     return X, y, fn, influential_indices, 'Sine Cosine'
 
-def generate_dataset_poly_sine(n_samples=100, n_features=10, seed=42):
+def generate_dataset_poly_sine(n_samples=100, n_features=10, type="correlated"):
     influential_indices = np.arange(0, 2)
-    X = generate_X(n_samples, n_features, influential_indices=influential_indices, correlation_value=0.6)
+    X = generate_X(n_samples, n_features, influential_indices=influential_indices, correlation_value=0.6, type=type)
 
     def fn(X):
         f1, f2 = X[:, 0], X[:, 1]
@@ -121,9 +123,9 @@ def generate_dataset_poly_sine(n_samples=100, n_features=10, seed=42):
     
     return X, y, fn, influential_indices, 'Poly Sine'
 
-def generate_dataset_squared_exponentials(n_samples=100, n_features=10, seed=42):
+def generate_dataset_squared_exponentials(n_samples=100, n_features=10, type="correlated"):
     influential_indices = np.arange(0, 3)
-    X = generate_X(n_samples, n_features, influential_indices=influential_indices, correlation_value=0.6)
+    X = generate_X(n_samples, n_features, influential_indices=influential_indices, correlation_value=0.6, type=type)
 
     def fn(X):
         # Compute a function based on squared exponentials of the first 2 features
@@ -137,9 +139,9 @@ def generate_dataset_squared_exponentials(n_samples=100, n_features=10, seed=42)
 
 # These functions are for more than 3 features
 
-def generate_dataset_complex_tanhsin(n_samples=1000, n_features=10, seed=42):
+def generate_dataset_complex_tanhsin(n_samples=1000, n_features=10, type="correlated"):
     influential_indices = np.arange(0, 3)
-    X = generate_X(n_samples, n_features, influential_indices=influential_indices, correlation_value=0.6)
+    X = generate_X(n_samples, n_features, influential_indices=influential_indices, correlation_value=0.6, type=type)
 
     def fn(X):
         f1, f2, f3 = X[:, 0], X[:, 1], X[:, 2]
@@ -160,9 +162,9 @@ def generate_dataset_complex_tanhsin(n_samples=1000, n_features=10, seed=42):
     
     return X, y, fn, influential_indices, 'Tanh Sine'
 
-def generate_dataset_complex_trig_exp(n_samples=100, n_features=10, seed=42):
+def generate_dataset_complex_trig_exp(n_samples=100, n_features=10, type="correlated"):
     influential_indices = np.arange(0, 4)
-    X = generate_X(n_samples, n_features, influential_indices=influential_indices, correlation_value=0.6)
+    X = generate_X(n_samples, n_features, influential_indices=influential_indices, correlation_value=0.6, type=type)
 
     def fn(X):
         f1, f2, f3, f4 = X[:, 0], X[:, 1], X[:, 2], X[:, 3]
@@ -177,9 +179,9 @@ def generate_dataset_complex_trig_exp(n_samples=100, n_features=10, seed=42):
 
     return X, y, fn, influential_indices, 'Trigonometric Exponential'
 
-def generate_dataset_complex_exponential_hyperbolic(n_samples=100, n_features=10, seed=42):
+def generate_dataset_complex_exponential_hyperbolic(n_samples=100, n_features=10, type="correlated"):
     influential_indices = np.arange(0, 4)
-    X = generate_X(n_samples, n_features, influential_indices=influential_indices, correlation_value=0.6)
+    X = generate_X(n_samples, n_features, influential_indices=influential_indices, correlation_value=0.6, type=type)
 
     def fn(X):
         f1, f2, f3, f4 = X[:, 0], X[:, 1], X[:, 2], X[:, 3]
@@ -194,10 +196,10 @@ def generate_dataset_complex_exponential_hyperbolic(n_samples=100, n_features=10
     
     return X, y, fn, influential_indices, 'Exponential Hyperbolic'
 
-def generate_dataset_XOR(n_samples=100, n_features=10):
+def generate_dataset_XOR(n_samples=100, n_features=10, type="correlated"):
     influential_indices = np.arange(0, 5)
 
-    X = generate_X(n_samples, n_features, influential_indices=influential_indices, correlation_value=0.6)
+    X = generate_X(n_samples, n_features, influential_indices=influential_indices, correlation_value=0.6, type=type)
 
     def fn(X):
         f1, f2, f3, f4, f5 = X[:, 0], X[:, 1], X[:, 2], X[:, 3], X[:, 4]
@@ -211,9 +213,9 @@ def generate_dataset_XOR(n_samples=100, n_features=10):
     
     return X, y, fn, influential_indices, 'XOR'
 
-def generate_dataset_Syn4(n_samples=100, n_features=10, seed=42):
+def generate_dataset_Syn4(n_samples=100, n_features=10, type="correlated"):
     influential_indices = np.arange(0, 10)
-    X = generate_X(n_samples, n_features, influential_indices=influential_indices, correlation_value=0.6)
+    X = generate_X(n_samples, n_features, influential_indices=influential_indices, correlation_value=0.6, type=type)
     def fn(X):
         f1, f2, f3, f4, f5 = X[:, 0], X[:, 1], X[:, 2], X[:, 3], X[:, 4]
         logit1 = np.exp(X[:,0]*X[:,1])
@@ -229,26 +231,26 @@ def generate_dataset_Syn4(n_samples=100, n_features=10, seed=42):
 
     return X, y, fn, influential_indices, 'XOR' 
 
-def generate_dataset(data_name, n_samples=100, n_features=10, seed = 0):
+def generate_dataset(data_name, n_samples=100, n_features=10, seed = 0, type="correlated"):
     np.random.seed(seed)
     if data_name == data_names[0]:
-         X, y, fn, feature_imp, _ = generate_dataset_sinlog(n_samples, n_features)
+         X, y, fn, feature_imp, _ = generate_dataset_sinlog(n_samples, n_features, type)
     if data_name == data_names[1]:
-         X, y, fn, feature_imp, _ = generate_dataset_sin(n_samples, n_features)
+         X, y, fn, feature_imp, _ = generate_dataset_sin(n_samples, n_features, type)
     if data_name == data_names[2]:
-         X, y, fn, feature_imp, _ = generate_dataset_poly_sine(n_samples, n_features)
+         X, y, fn, feature_imp, _ = generate_dataset_poly_sine(n_samples, n_features, type)
     if data_name == data_names[3]:
-         X, y, fn, feature_imp, _ = generate_dataset_squared_exponentials(n_samples, n_features)
+         X, y, fn, feature_imp, _ = generate_dataset_squared_exponentials(n_samples, n_features, type)
     if data_name == data_names[4]:
-        X, y, fn, feature_imp, _ = generate_dataset_complex_tanhsin(n_samples, n_features)
+        X, y, fn, feature_imp, _ = generate_dataset_complex_tanhsin(n_samples, n_features, type)
     if data_name == data_names[5]:
-        X, y, fn, feature_imp, _ = generate_dataset_complex_trig_exp(n_samples, n_features)
+        X, y, fn, feature_imp, _ = generate_dataset_complex_trig_exp(n_samples, n_features, type)
     if data_name == data_names[6]:
-        X, y, fn, feature_imp, _ = generate_dataset_complex_exponential_hyperbolic(n_samples, n_features)
+        X, y, fn, feature_imp, _ = generate_dataset_complex_exponential_hyperbolic(n_samples, n_features, type)
     if data_name == data_names[7]:
-        X, y, fn, feature_imp, _ = generate_dataset_XOR(n_samples, n_features)
+        X, y, fn, feature_imp, _ = generate_dataset_XOR(n_samples, n_features, type)
     if data_name == data_names[8]:
-        X, y, fn, feature_imp, _ = generate_dataset_Syn4(n_samples, n_features)
+        X, y, fn, feature_imp, _ = generate_dataset_Syn4(n_samples, n_features, type)
     
     Ground_Truth = Ground_Truth_Generation(X, data_name)
     return X, y, fn, feature_imp, Ground_Truth

@@ -52,13 +52,13 @@ if __name__ == '__main__':
     feature_no_gn = 18 # number of features for the synthesized instances
 
     # Example usage of one of the functions
-    datasets=['Sine Log', 'Sine Cosine', 'Poly Sine', 'Squared Exponentials', 'Tanh Sine', 
-              'Trigonometric Exponential', 'Exponential Hyperbolic', 'XOR']
+    datasets=['Squared Exponentials'] #['Sine Log', 'Sine Cosine', 'Poly Sine', 'Squared Exponentials', 'Tanh Sine', \
+              #'Trigonometric Exponential', 'Exponential Hyperbolic', 'XOR']
     for ds_name in datasets:
         #X, y, fn, feature_imp, ds_name = generate_data(n=sample_no_gn, d=feature_no_gn, datatype=ds)
-        X, y, fn, feature_imp, g_train = generate_dataset(ds_name, sample_no_gn, feature_no_gn, 42)
+        X, y, fn, feature_imp, g_train = generate_dataset(ds_name, sample_no_gn, feature_no_gn, 42, type="independent")
         
-        selected_indices = np.random.choice(X.shape[0], size=500, replace=False)
+        selected_indices = np.random.choice(X.shape[0], size=smaple_tbX, replace=False)
         X_tbx = X[selected_indices, :]
 
         n,d = X.shape
@@ -72,7 +72,6 @@ if __name__ == '__main__':
         
         shogp_values = shogp.local_Shapley_values(X_tbx)
         
-
         shogp_ranks = create_rank(np.array(shogp_values).squeeze())
         shogp_avg_ranks = np.mean(shogp_ranks[:,feature_imp], axis=1)
         shogp_mean_rank = np.mean(shogp_avg_ranks)

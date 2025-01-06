@@ -19,6 +19,15 @@ import time
 from SHOGP import SHOGP
 from synthesized_data import *
 
+import tensorflow as tf
+
+# List all available GPUs
+gpus = tf.config.list_physical_devices('GPU')
+if gpus:
+    print(f"CUDA is available. GPUs detected: {len(gpus)}")
+else:
+    print("CUDA is not available.")
+
 results_xsl = Path('fs_synthesized.xlsx')
 if not os.path.exists(results_xsl):
     # Create an empty Excel file if it doesn't exist
@@ -31,8 +40,8 @@ if __name__ == '__main__':
 
     X_sample_no = 500  # number of sampels for generating explanation
     smaple_tbX = 200   # number of samples to be explained
-    sample_no_gn = 20#00 # number of generated synthesized instances 
-    feature_no_gn = 5#8 # number of features for the synthesized instances
+    sample_no_gn = 2000 # number of generated synthesized instances 
+    feature_no_gn = 20 # number of features for the synthesized instances
 
     exp_no = 2 
     importance_mi = np.zeros((exp_no,feature_no_gn))
