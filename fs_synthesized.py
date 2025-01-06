@@ -43,7 +43,7 @@ if __name__ == '__main__':
     sample_no_gn = 2000 # number of generated synthesized instances 
     feature_no_gn = 20 # number of features for the synthesized instances
 
-    exp_no = 100
+    exp_no = 30
     importance_mi = np.zeros((exp_no,feature_no_gn))
     importance_lasso = np.zeros((exp_no,feature_no_gn))
     orders_rfecv = np.zeros((exp_no,feature_no_gn))
@@ -64,8 +64,8 @@ if __name__ == '__main__':
     time_hsiclasso = np.zeros(exp_no)
 
     # Example usage of one of the functions
-    datasets=['Sine Log', 'Sine Cosine', 'Poly Sine', 'Squared Exponentials', 'Tanh Sine', 
-              'Trigonometric Exponential', 'Exponential Hyperbolic', 'XOR']
+    datasets=[ 'Sine Cosine', 'Poly Sine', 'Squared Exponentials', 'Tanh Sine', 
+              'Trigonometric Exponential', 'Exponential Hyperbolic', 'XOR'] #'Sine Log'
     
     for ds_name in datasets:
             for i in range(exp_no):

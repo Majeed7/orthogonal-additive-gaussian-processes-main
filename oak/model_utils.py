@@ -147,6 +147,32 @@ def create_model_oak(
     )
 
     if inducing_pts is not None:
+        #X_train, Y_train = data  # Unpack your data into features (X) and labels (Y)
+
+        # Define the model
+        # model = gpflow.models.SVGP(
+        #     kernel=k,
+        #     likelihood=gpflow.likelihoods.Gaussian(),
+        #     inducing_variable=data[0][:200,],
+        # )
+
+        # elbo = tf.function(model.elbo)
+        # minibatch_size = 100
+        # tensor_data = tuple(map(tf.convert_to_tensor, data))
+        # train_dataset = tf.data.Dataset.from_tensor_slices((data[0], data[1])).repeat().shuffle(len(data[0]))
+        # train_iter = iter(train_dataset.batch(minibatch_size))
+
+        # Training loop
+        # opt = tf.optimizers.Adam()
+        # for step in range(1000):
+        #     batch = next(train_iter)
+        #     with tf.GradientTape() as tape:
+        #         loss = -model.elbo(batch)
+        #     gradients = tape.gradient(loss, model.trainable_variables)
+        #     opt.apply_gradients(zip(gradients, model.trainable_variables))
+        #     if step % 100 == 0:
+        #             print(f"Step {step}: ELBO = {loss.numpy()}")
+
         model = SGPR(
             data,
             mean_function=None,

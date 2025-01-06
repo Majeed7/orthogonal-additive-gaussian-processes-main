@@ -37,7 +37,6 @@ class SHOGP():
         self.ORBF = orthogonal_rbf_kernel
         self.n, self.d = n, d
 
-
     def local_Shapley_values(self, X):
         ## Starting Shapley Value Calculation
         X_trans = self.OGP._transform_x(X)
@@ -59,9 +58,6 @@ class SHOGP():
             instance_K_per_feature.append(K_per_feature)
         
         self.v0 = np.sum(self.OGP.alpha) * self.OGP.m.kernel.variances[0].numpy()  
-
-        ## if using inducing points for faster training, get the inducing points by:
-        # oak.m.inducing_variable.Z
         
         alpha_pt = self.OGP.alpha.numpy()
         sigmas_pt = (np.array([self.OGP.m.kernel.variances[i].numpy() for i in range(len(self.OGP.m.kernel.variances)) if i != 0]))
@@ -122,7 +118,10 @@ class SHOGP():
         omega = np.sum(dp[:, 0, :], axis=0)
 
         return omega , dp
-
+    
+    '''
+    Global Shapley Value Calculation
+    '''
     def global_shapley_value(self):
         gamma_list = []
         for i in range(self.d):

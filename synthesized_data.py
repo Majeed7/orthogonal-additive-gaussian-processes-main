@@ -98,8 +98,8 @@ def generate_dataset_sin(n_samples=100, n_features=10, noise=0.1, type="correlat
         y_true = main_effects + interaction
         
         # Add Gaussian noise to the target values
-        noise_array = noise * np.random.randn(X.shape[0])
-        y = y_true + noise_array
+        #noise_array = noise * np.random.randn(X.shape[0])
+        y = y_true #+ noise_array
         
         return y
 
