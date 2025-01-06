@@ -43,7 +43,7 @@ if __name__ == '__main__':
     sample_no_gn = 2000 # number of generated synthesized instances 
     feature_no_gn = 20 # number of features for the synthesized instances
 
-    exp_no = 2 
+    exp_no = 100
     importance_mi = np.zeros((exp_no,feature_no_gn))
     importance_lasso = np.zeros((exp_no,feature_no_gn))
     orders_rfecv = np.zeros((exp_no,feature_no_gn))
