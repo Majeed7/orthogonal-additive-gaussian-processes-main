@@ -25,7 +25,7 @@ from SHOGP import SHOGP
 #from synthesized_datasets import *
 from synthesized_data import *
 from datetime import datetime
-
+import os
 
 import tensorflow as tf
 
@@ -39,7 +39,9 @@ else:
 
 
 results_xsl = Path('explanation_synthesized.xlsx')
-
+if not os.path.exists(results_xsl):
+    # Create an empty Excel file if it doesn't exist
+    pd.DataFrame().to_excel(results_xsl, index=False)
 
 if __name__ == '__main__':
     np.random.seed(30)
