@@ -519,9 +519,6 @@ def compute_sobol_oak(
     return selected_dims_oak, sobol
 
 
-
-
-
 def compute_sobol(
     model: GPModel,
     kernel_list: list,

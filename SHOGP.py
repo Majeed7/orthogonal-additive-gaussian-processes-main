@@ -274,3 +274,25 @@ class SHOGP():
 
         return omega , dp
 
+
+    def get_sobol(self):
+        gamma_list = []
+        for i in range(self.d):
+            dim = i     
+            l = self.OGP.m.kernel.kernels[i].base_kernel.lengthscales.numpy()
+            gamma = compute_L(X= self.X_base,#self.OGP.m.data[0], #self.X_train, 
+                          lengthscale = l, 
+                          variance = 1, # the variance of each kernel is set to one, instead we have variance for each interaction order; it is included later on in the computation of Shapley value
+                          dim = dim, 
+                          delta = self.ORBF.measure.var, 
+                          mu = self.ORBF.measure.mu)
+            gamma_list.append(gamma.astype(np.float64))
+
+        variances = self.OGP.m.kernel.variances[1:] ## The first variance corresponds to the bias term
+        alpha = self.OGP.alpha
+
+        sobol = np.zeros((self.d,))
+        for i in range(self.d):
+            sobol[i] = tf.matmul(tf.matmul(tf.transpose(alpha), gamma_list[i]), alpha).numpy() * (variances[0] ** 2)
+
+        return sobol

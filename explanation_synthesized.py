@@ -61,8 +61,6 @@ if __name__ == '__main__':
         selected_indices = np.random.choice(X.shape[0], size=500, replace=False)
         X_tbx = X[selected_indices, :]
 
-
-
         n,d = X.shape
     
         shogp = SHOGP(X, y, inte_order=5)
