@@ -34,8 +34,7 @@ def generate_data(n=500, d=10, datatype='XOR'):
     
     elif datatype == 'squared_exp':
          return generate_dataset_squared_exponentials(n, d)
-    
-    
+      
 def generate_X(n_samples=100, n_features=10):
     #return np.random.uniform(-1, 1, (n_samples, n_features))
     return np.random.randn(n_samples, n_features)

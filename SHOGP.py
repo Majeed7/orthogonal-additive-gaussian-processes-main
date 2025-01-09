@@ -18,7 +18,6 @@ class SHOGP():
         self.interaction_order = inte_order
         if inte_order == None: self.interaction_order = X.shape[1]
 
-
         if inducing_points == None:
             OGP = oak_model(max_interaction_depth=self.interaction_order) # If we want to use inducing points, add: num_inducing=20, sparse=True)
         else :
@@ -57,8 +56,11 @@ class SHOGP():
 
             instance_K_per_feature.append(K_per_feature)
         
-        self.v0 = np.sum(self.OGP.alpha) * self.OGP.m.kernel.variances[0].numpy()  
-        
+        v0_scaled = np.sum(self.OGP.alpha) * self.OGP.m.kernel.variances[0].numpy()  
+        sigma = self.OGP.scaler_y.scale_[0]
+        mu = self.OGP.scaler_y.mean_[0]
+        self.v0 = v0_scaled * sigma + mu
+
         alpha_pt = self.OGP.alpha.numpy()
         sigmas_pt = (np.array([self.OGP.m.kernel.variances[i].numpy() for i in range(len(self.OGP.m.kernel.variances)) if i != 0]))
         instance_shap_values = []
@@ -73,7 +75,7 @@ class SHOGP():
 
             #abs_values = np.abs(val)
             #sorted_indices = torch.argsort(abs_values, descending=True) + 1 # adding 1 to move ranking from 0 to 1
-            instance_shap_values.append(val * self.OGP.scaler_y.scale_[0]) ## The sum of Shapley value is now sum to Y_scaled; need to return to the original space
+            instance_shap_values.append(val * sigma) ## The sum of Shapley value is now sum to Y_scaled; need to return to the original space
 
         return np.array(instance_shap_values).squeeze()
     

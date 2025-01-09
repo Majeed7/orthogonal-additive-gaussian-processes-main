@@ -1,11 +1,8 @@
 from sklearn.feature_selection import mutual_info_classif, RFECV, SelectKBest, chi2, mutual_info_regression
 from synthesized_datasets import *
 from sklearn.linear_model import Lasso
-from sklearn.feature_selection import SelectFromModel
 from sklearn.svm import SVC, SVR
-from sklearn.model_selection import StratifiedKFold
 from sklearn.ensemble import ExtraTreesClassifier, ExtraTreesRegressor
-import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.feature_selection import SelectKBest, f_classif, f_regression
 import numpy as np

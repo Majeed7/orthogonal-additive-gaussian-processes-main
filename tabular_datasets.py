@@ -151,7 +151,7 @@ def credit_approval():
 # It's an excellent example of binary classification with a balanced feature set.
 def sonar():
     url = "https://archive.ics.uci.edu/ml/machine-learning-databases/undocumented/connectionist-bench/sonar/sonar.all-data"
-    df = pd.read_csv(url, header=None, sep=' ')
+    df = pd.read_csv(url, header=None, sep=',')
     
     X = df.values[:,:-1]
     y = df.values[:,-1]

@@ -47,12 +47,12 @@ if __name__ == '__main__':
     np.random.seed(30)
 
     X_sample_no = 200  # number of sampels for generating explanation
-    smaple_tbX = 2   # number of samples to be explained
-    sample_no_gn = 10 # number of generated synthesized instances 
-    feature_no_gn = 3 # number of features for the synthesized instances
+    smaple_tbX = 200   # number of samples to be explained
+    sample_no_gn = 1000 # number of generated synthesized instances 
+    feature_no_gn = 15 # number of features for the synthesized instances
 
     # Example usage of one of the functions
-    datasets=['Sine Log'] #['Sine Log', 'Sine Cosine', 'Poly Sine', 'Squared Exponentials', 'Tanh Sine', \
+    datasets=['Sine Cosine', 'Trigonometric Exponential', 'Exponential Hyperbolic'] #['Sine Log', 'Sine Cosine', 'Poly Sine', 'Squared Exponentials', 'Tanh Sine', \
               #'Trigonometric Exponential', 'Exponential Hyperbolic', 'XOR']
     for ds_name in datasets:
         #X, y, fn, feature_imp, ds_name = generate_data(n=sample_no_gn, d=feature_no_gn, datatype=ds)
@@ -63,19 +63,20 @@ if __name__ == '__main__':
 
         n,d = X.shape
     
-        shogp = SHOGP(X, y)#, inte_order=5)
+        shogp = SHOGP(X, y, inte_order=5)
         #y_hat = shogp.OGP.predict(X)
         #ground_truth_var = np.var(y_hat)
         #var_normalized = np.var(shogp.OGP.scaler_y.transform(y_hat.reshape(-1,1)))
         #getSOBOL = shogp.OGP.get_sobol()
         #shapley_values_rescaled, shapley_values = shogp.global_shapley_value()
         
-        shogp_values = shogp.local_Shapley_values(X[:2,])
-        
+        shogp_values = shogp.local_Shapley_values(X_tbx)
+
         shogp_ranks = create_rank(np.array(shogp_values).squeeze())
         shogp_avg_ranks = np.mean(shogp_ranks[:,feature_imp], axis=1)
         shogp_mean_rank = np.mean(shogp_avg_ranks)
- 
+
+        '''
         ## SHAP
         X_bg = shap.sample(X, 100)
         explainer = shap.KernelExplainer(fn, X_bg, l1_reg=True)
@@ -141,9 +142,9 @@ if __name__ == '__main__':
 
         #plt.boxplot([shogp_avg_ranks, shap_avg_ranks, bishap_avg_ranks, sshap_avg_ranks, ushap_avg_ranks, lime_avg_ranks, maple_avg_ranks])
 
-
-        method_names = ['SHOGP', 'Kernel SHAP', 'Sampling SHAP', 'Unbiased SHAP', 'Bivariate SHAP', 'LIME',  'MAPLE']
-        all_results = [shogp_avg_ranks, shap_avg_ranks, sshap_avg_ranks, ushap_avg_ranks, bishap_avg_ranks, lime_avg_ranks, maple_avg_ranks]
+        '''
+        method_names = ['SHOGP']#, 'Kernel SHAP', 'Sampling SHAP', 'Unbiased SHAP', 'Bivariate SHAP', 'LIME',  'MAPLE']
+        all_results = [shogp_avg_ranks]#, shap_avg_ranks, sshap_avg_ranks, ushap_avg_ranks, bishap_avg_ranks, lime_avg_ranks, maple_avg_ranks]
 
         df = pd.DataFrame(all_results, index=method_names)
 
