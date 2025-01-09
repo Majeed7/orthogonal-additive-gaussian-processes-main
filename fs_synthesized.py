@@ -25,7 +25,7 @@ if gpus:
 else:
     print("CUDA is not available.")
 
-results_xsl = Path('fs_synthesized.xlsx')
+results_xsl = Path('agp_fs_synthesized_v2.xlsx')
 if not os.path.exists(results_xsl):
     # Create an empty Excel file if it doesn't exist
     pd.DataFrame().to_excel(results_xsl, index=False)
@@ -37,8 +37,8 @@ if __name__ == '__main__':
 
     X_sample_no = 500  # number of sampels for generating explanation
     smaple_tbX = 200   # number of samples to be explained
-    sample_no_gn = 2000 # number of generated synthesized instances 
-    feature_no_gn = 20 # number of features for the synthesized instances
+    sample_no_gn = 1000 # number of generated synthesized instances 
+    feature_no_gn = 10 # number of features for the synthesized instances
 
     exp_no = 30
     importance_mi = np.zeros((exp_no,feature_no_gn))
@@ -61,8 +61,8 @@ if __name__ == '__main__':
     time_hsiclasso = np.zeros(exp_no)
 
     # Example usage of one of the functions
-    datasets=[ 'Sine Cosine', 'Poly Sine', 'Squared Exponentials', 'Tanh Sine', 
-              'Trigonometric Exponential', 'Exponential Hyperbolic', 'XOR'] #'Sine Log'
+    datasets=['Sine Log', 'Sine Cosine', 'Poly Sine', 'Squared Exponentials', 'Tanh Sine', 
+              'Trigonometric Exponential', 'Exponential Hyperbolic', 'XOR'] #
     
     for ds_name in datasets:
             for i in range(exp_no):
@@ -80,53 +80,53 @@ if __name__ == '__main__':
                 time_shogp[i] = time.time() - start_time 
                 importance_shogp[i,:] = shapley_values
 
-                start_time = time.time()
-                importance_sobol[i,:] = shogp.get_sobol()
-                time_sobol[i] = time.time() - start_time 
+                # start_time = time.time()
+                # importance_sobol[i,:] = shogp.get_sobol()
+                # time_sobol[i] = time.time() - start_time 
 
-                ## HSIC lasso 
-                start_time = time.time()
-                hsic_lasso = HSICLasso()
-                hsic_lasso.input(X,y)
-                hsic_lasso.regression(feature_no_gn, covars=X)
-                hsic_ind = hsic_lasso.get_index()
-                init_ranks = (len(hsic_ind) + (feature_no_gn - 1/2 - len(hsic_ind))/2) * np.ones((feature_no_gn,))
-                init_ranks[hsic_ind] = np.arange(1,len(hsic_ind)+1)
-                importance_hsiclasso[i,:] = init_ranks 
-                time_hsiclasso[i] = time.time() - start_time 
+                # ## HSIC lasso 
+                # start_time = time.time()
+                # hsic_lasso = HSICLasso()
+                # hsic_lasso.input(X,y)
+                # hsic_lasso.regression(feature_no_gn, covars=X)
+                # hsic_ind = hsic_lasso.get_index()
+                # init_ranks = (len(hsic_ind) + (feature_no_gn - 1/2 - len(hsic_ind))/2) * np.ones((feature_no_gn,))
+                # init_ranks[hsic_ind] = np.arange(1,len(hsic_ind)+1)
+                # importance_hsiclasso[i,:] = init_ranks 
+                # time_hsiclasso[i] = time.time() - start_time 
 
-                ## Mutual Informmation Importance
-                start_time = time.time()
-                importance_mi[i,:] = mutual_info_classif(X,y) if mode == 'classification' else mutual_info_regression(X,y)
-                time_mi[i] = time.time() - start_time
+                # ## Mutual Informmation Importance
+                # start_time = time.time()
+                # importance_mi[i,:] = mutual_info_classif(X,y) if mode == 'classification' else mutual_info_regression(X,y)
+                # time_mi[i] = time.time() - start_time
 
-                ## Lasso importance
-                start_time = time.time()
-                lasso = Lasso().fit(X, y)
-                importance_lasso[i,:] = np.abs(lasso.coef_)
-                time_lasso[i] = time.time() - start_time
+                # ## Lasso importance
+                # start_time = time.time()
+                # lasso = Lasso().fit(X, y)
+                # importance_lasso[i,:] = np.abs(lasso.coef_)
+                # time_lasso[i] = time.time() - start_time
 
-                #Recursive elimination
-                start_time = time.time()
-                estimator = SVC(kernel="linear") if mode == 'classification' else SVR(kernel='linear')
-                rfecv = RFECV(estimator, step=1, cv=5)
-                rfecv.fit(X, y)
-                orders_rfecv[i,:] = rfecv.ranking_
-                time_rfecv[i] = time.time() - start_time    
+                # #Recursive elimination
+                # start_time = time.time()
+                # estimator = SVC(kernel="linear") if mode == 'classification' else SVR(kernel='linear')
+                # rfecv = RFECV(estimator, step=1, cv=5)
+                # rfecv.fit(X, y)
+                # orders_rfecv[i,:] = rfecv.ranking_
+                # time_rfecv[i] = time.time() - start_time    
 
-                ## K best
-                start_time = time.time()
-                bestfeatures = SelectKBest(score_func=f_classif, k='all') if mode == 'classification' else SelectKBest(score_func=f_regression, k='all') #F-ANOVA feature selection
-                fit = bestfeatures.fit(X,y)
-                importance_k_best[i,:] = fit.scores_
-                time_k_best[i] = time.time() - start_time   
+                # ## K best
+                # start_time = time.time()
+                # bestfeatures = SelectKBest(score_func=f_classif, k='all') if mode == 'classification' else SelectKBest(score_func=f_regression, k='all') #F-ANOVA feature selection
+                # fit = bestfeatures.fit(X,y)
+                # importance_k_best[i,:] = fit.scores_
+                # time_k_best[i] = time.time() - start_time   
 
-                ## Tree ensemble 
-                start_time = time.time()
-                model = ExtraTreesClassifier(n_estimators=50) if mode =='classification' else ExtraTreesRegressor(n_estimators=50)
-                model.fit(X,y)
-                importance_ensemble[i,:] = model.feature_importances_
-                time_ensemble[i] = time.time() - start_time 
+                # ## Tree ensemble 
+                # start_time = time.time()
+                # model = ExtraTreesClassifier(n_estimators=50) if mode =='classification' else ExtraTreesRegressor(n_estimators=50)
+                # model.fit(X,y)
+                # importance_ensemble[i,:] = model.feature_importances_
+                # time_ensemble[i] = time.time() - start_time 
 
             ranking_mi = create_rank(importance_mi)
             ranking_lasso = create_rank(importance_lasso)

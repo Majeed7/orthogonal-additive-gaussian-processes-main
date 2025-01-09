@@ -161,7 +161,7 @@ class SHOGP():
         
         shapley_vals = np.zeros((self.d,))
         for i in range(self.d):
-            gamma_hat_i, dp = self._gamma_hat(dim=i, gamma_list=gamma_list, variances = variances)
+            gamma_hat_i, _ = self._gamma_hat(dim=i, gamma_list=gamma_list, variances = variances)
             shapley_vals[i] = tf.matmul(tf.matmul(tf.transpose(alpha), gamma_hat_i), alpha).numpy()
         
         shapley_vals = shapley_vals / (np.sum(shapley_vals) + self.OGP.m.likelihood.variance.numpy()) # normalizing Shapley value
