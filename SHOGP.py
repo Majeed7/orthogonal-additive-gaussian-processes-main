@@ -86,7 +86,7 @@ class SHOGP():
         gpflow.utilities.print_summary(OGP.m)
 
         # Training loop
-        epochs = 2 
+        epochs = 200
         start_time = time.time()
         for epoch in range(epochs):
             for X_batch, y_batch in dataset:

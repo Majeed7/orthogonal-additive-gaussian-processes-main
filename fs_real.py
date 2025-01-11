@@ -350,7 +350,7 @@ if __name__ == '__main__':
 
             if selector == "AGP-SHAP" or selector == "sobol":
                 if X.shape[1] >=60:
-                    int_order = 2
+                    int_order = 3
                 else:  
                     int_order = 5
                 
