@@ -9,7 +9,7 @@ regression_mode = 'regression'
 classification_mode = 'classification'
 label_encoder = preprocessing.LabelEncoder()
 
-def california_housing():
+def california_housing(): # 20k samples with 8 features
     data = fetch_california_housing()
     X = data['data']
     y = data['target']
@@ -63,7 +63,7 @@ def stackloos():
 
 # Fair's Extramarital Affairs Data
 # Description: Predict the rate of extramarital affairs.
-def extramarital_affairs():
+def extramarital_affairs(): # 6k samples with 8 features
     data = sm.datasets.fair.load_pandas().data
     X = data.drop('affairs', axis=1).values
     y = data['affairs'].values
@@ -89,7 +89,7 @@ def mode_choice():
     return X, y, 'mode choice', regression_mode
 
 
-def wine_quality():
+def wine_quality(): ## 1600 samples with 11 features
     wine = pd.read_csv('https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv', sep=';')
     X = wine.drop('quality', axis=1).values
     y = wine['quality'].values

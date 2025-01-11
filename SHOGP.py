@@ -4,9 +4,17 @@ from oak.utils import get_model_sufficient_statistics, get_prediction_component
 from oak.ortho_rbf_kernel import OrthogonalRBFKernel
 #from OAK_shapley.examples.uci.functions_shap import Omega, tensorflow_to_torch, torch_to_tensorflow, numpy_to_torch
 
-import gpflow
-import numpy as np 
 import tensorflow as tf 
+from sklearn.utils.multiclass import type_of_target
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import LabelEncoder
+
+import gpflow
+from scipy.cluster.vq import kmeans
+import numpy as np
+from sklearn.preprocessing import LabelEncoder
+from gpflow.optimizers import Scipy
+import time
 
 from oak.utils import compute_L
 
@@ -14,6 +22,9 @@ class SHOGP():
     def __init__(self, X, y, inte_order=None, inducing_points=None):
         n, d = X.shape
         base_kernel = gpflow.kernels.RBF()
+
+        if y.ndim == 1:
+            y = y.reshape(-1,1)
         
         self.interaction_order = inte_order
         if inte_order == None: self.interaction_order = X.shape[1]
@@ -21,9 +32,78 @@ class SHOGP():
         if inducing_points == None:
             OGP = oak_model(max_interaction_depth=self.interaction_order) # If we want to use inducing points, add: num_inducing=20, sparse=True)
         else :
+            inducing_points = np.min([inducing_points, X.shape[0]])
             OGP = oak_model(max_interaction_depth=self.interaction_order, num_inducing=inducing_points, sparse=True)
 
-        OGP.fit(X, y.reshape(-1,1))
+        '''
+        Training the model 
+        '''
+
+        ## Preprocessing the data
+        target_type = type_of_target(y)
+        print(f"Target type: {target_type}")
+        if target_type == "binary":
+            likelihood = gpflow.likelihoods.Bernoulli()
+        elif target_type == "multiclass":
+            num_classes = len(np.unique(y))   # Replace with the number of classes in your problem
+            likelihood = gpflow.likelihoods.MultiClass(num_classes)
+        elif target_type == "continuous":
+            likelihood = gpflow.likelihoods.Gaussian()
+
+        if target_type != "continuous":
+            label_encoder = LabelEncoder()
+            label_encoder.fit_transform(y)
+            y = label_encoder.fit_transform(y).reshape(-1, 1)
+
+        imputer = SimpleImputer(strategy='mean')  # Replace 'mean' with 'median', 'most_frequent', or 'constant'
+        X = imputer.fit_transform(X)
+
+        OGP.fit(X, y.reshape(-1,1), optimise=False)
+
+        ## Set the inducing points
+        Z = (kmeans(OGP.m.data[0].numpy(), 200)[0]
+                if X.shape[0] > 200
+                else OGP.m.data[0].numpy())
+
+        ## Creating Stochastic Variational GP for mini-batch training 
+        OGP.m = gpflow.models.SVGP(
+                    kernel=OGP.m.kernel,
+                    likelihood=likelihood,
+                    inducing_variable=Z,
+                    whiten=True,
+                    q_diag=True)
+
+
+        ## mini-batch training 
+        print("training with mini-batch")
+        batch_size = np.min((500, X.shape[0]))  # Define the batch size
+        dataset = tf.data.Dataset.from_tensor_slices((X, y))
+        dataset = dataset.shuffle(buffer_size=len(X)).batch(batch_size)
+
+        optimizer = tf.optimizers.Adam(learning_rate=0.01)
+        inducing_points = OGP.m.inducing_variable.Z
+        gpflow.set_trainable(inducing_points, False)
+        gpflow.utilities.print_summary(OGP.m)
+
+        # Training loop
+        epochs = 2 
+        start_time = time.time()
+        for epoch in range(epochs):
+            for X_batch, y_batch in dataset:
+                
+                with tf.GradientTape() as tape:
+                    # Compute the negative ELBO for the batch
+                    loss = -OGP.m.elbo((X_batch, y_batch))
+
+                # Apply gradients
+                gradients = tape.gradient(loss, OGP.m.trainable_variables)
+                optimizer.apply_gradients(zip(gradients, OGP.m.trainable_variables))
+            
+            # Print progress
+            if (epoch + 1) % 10 == 0:
+                print(f"Epoch {epoch + 1}/{epochs}, Loss: {loss.numpy()}, Time: {time.time() - start_time:.2f}s")
+
+
         measure = GaussianMeasure(mu = 0, var = 1) # Example measure, adjust as needed
         orthogonal_rbf_kernel = OrthogonalRBFKernel(base_kernel, measure)
 
@@ -32,7 +112,7 @@ class SHOGP():
         self.y_train = y
         self.X_base = OGP._transform_x(X) if inducing_points == None and OGP.sparse == False else OGP.m.inducing_variable.Z.numpy()
         self.OGP = OGP
-        self.OGP.alpha = get_model_sufficient_statistics(self.OGP.m, get_L=False)
+        self.OGP.alpha = OGP.m.q_mu.numpy().squeeze().reshape(-1,1) if isinstance(OGP.m, gpflow.models.SVGP) else get_model_sufficient_statistics(self.OGP.m, get_L=False)
         self.ORBF = orthogonal_rbf_kernel
         self.n, self.d = n, d
 
@@ -164,8 +244,12 @@ class SHOGP():
             gamma_hat_i, _ = self._gamma_hat(dim=i, gamma_list=gamma_list, variances = variances)
             shapley_vals[i] = tf.matmul(tf.matmul(tf.transpose(alpha), gamma_hat_i), alpha).numpy()
         
-        shapley_vals = shapley_vals / (np.sum(shapley_vals) + self.OGP.m.likelihood.variance.numpy()) # normalizing Shapley value
-        shapley_vals_rescaled = shapley_vals * self.OGP.scaler_y.var_
+        if isinstance(self.OGP.m.likelihood, gpflow.likelihoods.scalar_discrete.Bernoulli):
+            shapley_vals = shapley_vals / np.sum(shapley_vals)
+            shapley_vals_rescaled = shapley_vals 
+        else:
+            shapley_vals = shapley_vals / (np.sum(shapley_vals) + self.OGP.m.likelihood.variance.numpy()) # normalizing Shapley value
+            shapley_vals_rescaled = shapley_vals * self.OGP.scaler_y.var_
 
         return shapley_vals_rescaled, shapley_vals
     

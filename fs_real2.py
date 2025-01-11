@@ -207,93 +207,6 @@ if not os.path.exists(results_xsl):
 
 
 
-'''
-
-target_type = type_of_target(y)
-if target_type == "binary":
-    return "binary"
-elif target_type == "multiclass":
-    return "multiclass"
-elif target_type == "continuous":
-    return "regression"
-
-
-def invlink(f):
-    return gpflow.likelihoods.Bernoulli().invlink(f).numpy()
-#invlink = gpflow.likelihoods.RobustMax(13)  # Robustmax inverse link function
-#likelihood = gpflow.likelihoods.MultiClass(3, invlink=invlink) 
-likelihood = gpflow.likelihoods.Gaussian()
-#likelihood = gpflow.likelihoods.Bernoulli(invlink=invlink)
-
-# opt = gpflow.optimizers.Scipy()
-# opt.minimize(
-#     OGP.m.training_loss_closure((OGP.m.data[0], y)),
-#     OGP.m.trainable_variables,
-#     method="BFGS")
-
-X, y = load_dataset("breast_cancer_wisconsin")
-label_encoder = LabelEncoder()
-label_encoder.fit_transform(y.values)
-y = label_encoder.fit_transform(y.values).reshape(-1, 1)
-#y = np.array(y, dtype=float)
-
-imputer = SimpleImputer(strategy='mean')  # Replace 'mean' with 'median', 'most_frequent', or 'constant'
-X = imputer.fit_transform(X)
-
-#X = np.array(X.values, dtype=np.float64)
-
-OGP = oak_model(max_interaction_depth=2, share_var_across_orders=False, num_inducing=200)
-OGP.fit(X, y, optimise=False)
-
-Z = (kmeans(OGP.m.data[0].numpy(), 200)[0]
-    if X.shape[0] > 200
-    else OGP.m.data[0].numpy())
-
-
-OGP.m = gpflow.models.SVGP(
-            kernel=OGP.m.kernel,
-            likelihood=likelihood,
-            inducing_variable=Z,
-            whiten=True,
-            q_diag=True)
-
-inducing_points = OGP.m.inducing_variable.Z
-gpflow.set_trainable(inducing_points, False)
-
-## mini-batch training 
-import tensorflow as tf
-import gpflow
-from gpflow.optimizers import Scipy
-batch_size = 64  # Define the batch size
-dataset = tf.data.Dataset.from_tensor_slices((X, y))
-dataset = dataset.shuffle(buffer_size=len(X)).batch(batch_size)
-
-optimizer = tf.optimizers.Adam(learning_rate=0.01)
-inducing_points = OGP.m.inducing_variable.Z
-gpflow.set_trainable(inducing_points, False)
-
-
-# Training loop
-epochs = 2
-start_time = time.time() # Start the timer
-for epoch in range(epochs):
-    for X_batch, y_batch in dataset:
-        X_batch = tf.convert_to_tensor(X_batch, dtype=tf.float64)
-        y_batch = tf.convert_to_tensor(y_batch, dtype=tf.float64)
-
-        with tf.GradientTape() as tape:
-            # Compute the negative ELBO for the batch
-            loss = -OGP.m.elbo((X_batch, y_batch))
-
-        # Apply gradients
-        gradients = tape.gradient(loss, OGP.m.trainable_variables)
-        optimizer.apply_gradients(zip(gradients, OGP.m.trainable_variables))
-    
-    # Print progress
-    print(f"Epoch {epoch + 1}/{epochs}, Loss: {loss.numpy()}, in {time.time() - start_time} seconds")
-'''
-
-
 if __name__ == '__main__':
     # steel: 1941 * 33    binary
     # waveform: 5000 * 40 binary 
@@ -301,8 +214,8 @@ if __name__ == '__main__':
     
     # nomao: 34465 * 118 binary
 
-    dataset_names = ["breast_cancer_wisconsin", "breast_cancer", "pumadyn32nm", "sonar", "nomao", "waveform"] #"steel", "ionosphere", "gas", "pol", "sml"]
-    #dataset_names = ["breast_cancer_wisconsin", "pumadyn32nm", "sonar", "skillcraft", "crime"]
+    #dataset_names = ["breast_cancer_wisconsin", "breast_cancer", "pumadyn32nm", "sonar", "nomao", "waveform"] #"steel", "ionosphere", "gas", "pol", "sml"]
+    dataset_names = ["breast_cancer_wisconsin", "pumadyn32nm", "sonar", "skillcraft", "crime"]
     # Main running part of the script
     for dataset_name in dataset_names:
         print(f"\nProcessing dataset: {dataset_name}")
@@ -401,7 +314,7 @@ if __name__ == '__main__':
             sheet.append([selector, execution_time] + list(global_importance))
 
         # Save the Excel file after processing each dataset
-        excel_filename = "feature_importance1.xlsx"
+        excel_filename = "feature_importance_2.xlsx"
         wb.save(excel_filename)
         print(f"Global feature importance for {dataset_name} saved to {excel_filename}")
         del shogp
