@@ -258,7 +258,7 @@ if __name__ == '__main__':
             print(f"Applying feature selector: {selector} on dataset: {dataset_name}")
             start_time = time.time()
 
-            if selector == "AGP-SHAP" or selector == "sobol":
+            if selector == "AGP-SHAP" or selector == "Sobol":
                 if X.shape[1] >=60:
                     int_order = 3
                 else:  
