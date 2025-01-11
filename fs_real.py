@@ -312,8 +312,15 @@ if __name__ == '__main__':
             print(f"Failed to load dataset {dataset_name}: {e}")
             continue
 
+
+
         # Determine if the dataset is for classification or regression
         mode = "classification" if type_of_target(y) in ["binary", "multiclass"] else "regression"
+
+        if mode != "regression":
+            label_encoder = LabelEncoder()
+            label_encoder.fit_transform(y)
+            y = label_encoder.fit_transform(y).reshape(-1, 1)
 
         # Split the dataset into training and testing sets
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
