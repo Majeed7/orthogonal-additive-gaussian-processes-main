@@ -237,7 +237,7 @@ if __name__ == '__main__':
     # nomao: 34465 * 118 binary
 
     #dataset_names = ["breast_cancer", "sonar", "nomao", "waveform"] #"steel", "ionosphere", "gas", "pol", "sml"]
-    dataset_names2 = ["breast_cancer_wisconsin", "pumadyn32nm", "skillcraft", "crime"]
+    dataset_names2 = [ "pumadyn32nm", "skillcraft"]#, "crime", "breast_cancer_wisconsin",]
     #dataset_names3 = ['keggdirected', 'parkinson', "breast_cancer_wisconsin3"]
     # Main running part of the script
     for dataset_name in dataset_names2:
@@ -341,7 +341,7 @@ if __name__ == '__main__':
             sheet.append([selector, execution_time] + list(global_importance))
 
         # Save the Excel file after processing each dataset
-        excel_filename = "feature_importance_2.xlsx"
+        excel_filename = "feature_importance_2.2.xlsx"
         wb.save(excel_filename)
         print(f"Global feature importance for {dataset_name} saved to {excel_filename}")
         del shogp
