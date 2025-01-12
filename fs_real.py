@@ -304,8 +304,8 @@ if __name__ == '__main__':
     
     # nomao: 34465 * 118 binary
 
-    #dataset_names = ["breast_cancer_wisconsin", "breast_cancer", "pumadyn32nm", "sonar", "nomao", "waveform"] #"steel", "ionosphere", "gas", "pol", "sml"]
-    dataset_names = ["breast_cancer_wisconsin", "pumadyn32nm", "skillcraft", "crime"]
+    dataset_names = ["breast_cancer", "sonar", "nomao", "waveform"] #"steel", "ionosphere", "gas", "pol", "sml"]
+    dataset_names2 = ["breast_cancer_wisconsin", "pumadyn32nm", "skillcraft", "crime"]
     # Main running part of the script
     for dataset_name in dataset_names:
         print(f"\nProcessing dataset: {dataset_name}")

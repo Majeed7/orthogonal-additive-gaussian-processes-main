@@ -87,7 +87,7 @@ def train_svm(X_train, y_train, X_test, y_test):
     if is_classification:
         score = accuracy_score(y_test, y_pred)
     else:
-        rmse = mean_squared_error(y_test, y_pred, squared=False)
+        rmse = mean_squared_error(y_test, y_pred)
         score = rmse
 
     print("Best Parameters:", best_params)
@@ -217,10 +217,10 @@ if __name__ == '__main__':
     
     # nomao: 34465 * 118 binary
 
-    #dataset_names = ["breast_cancer_wisconsin", "breast_cancer", "pumadyn32nm", "sonar", "nomao", "waveform"] #"steel", "ionosphere", "gas", "pol", "sml"]
-    dataset_names = ["breast_cancer_wisconsin", "pumadyn32nm", "sonar", "skillcraft", "crime"]
+    dataset_names = ["breast_cancer", "sonar", "nomao", "waveform"] #"steel", "ionosphere", "gas", "pol", "sml"]
+    dataset_names2 = ["breast_cancer_wisconsin", "pumadyn32nm", "skillcraft", "crime"]
     # Main running part of the script
-    for dataset_name in dataset_names:
+    for dataset_name in dataset_names2:
         print(f"\nProcessing dataset: {dataset_name}")
         try:
             X, y = load_dataset(dataset_name)
