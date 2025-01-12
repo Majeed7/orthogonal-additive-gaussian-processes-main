@@ -217,7 +217,7 @@ def load_dataset(name):
 os.makedirs("trained_models", exist_ok=True)
 
 # Define the list of feature selectors
-feature_selectors = ["AGP-SHAP", "Sobol"]#, "mutual_info", "lasso", "rfecv", "k_best", "tree_ensemble"]
+feature_selectors = ["AGP-SHAP", "Sobol", "mutual_info", "lasso", "k_best", "tree_ensemble"] #, "rfecv"]
 
 # Initialize an Excel workbook to store global importance values
 wb = Workbook()
@@ -341,7 +341,7 @@ if __name__ == '__main__':
             sheet.append([selector, execution_time] + list(global_importance))
 
         # Save the Excel file after processing each dataset
-        excel_filename = "keggdirect_agpshap_sobol.xlsx"
+        excel_filename = "feature_importance_3.xlsx"
         wb.save(excel_filename)
         print(f"Global feature importance for {dataset_name} saved to {excel_filename}")
         del shogp

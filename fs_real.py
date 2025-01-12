@@ -198,7 +198,7 @@ def load_dataset(name):
 os.makedirs("trained_models", exist_ok=True)
 
 # Define the list of feature selectors
-feature_selectors = ["AGP-SHAP", "Sobol", "mutual_info", "lasso", "rfecv", "k_best", "tree_ensemble"]
+feature_selectors = ["AGP-SHAP", "Sobol", "mutual_info", "lasso", "k_best", "tree_ensemble"] # "rfecv", 
 
 # Initialize an Excel workbook to store global importance values
 wb = Workbook()
@@ -305,7 +305,7 @@ if __name__ == '__main__':
     # nomao: 34465 * 118 binary
 
     dataset_names = ["breast_cancer", "sonar", "nomao", "waveform"] #"steel", "ionosphere", "gas", "pol", "sml"]
-    dataset_names2 = ["breast_cancer_wisconsin", "pumadyn32nm", "skillcraft", "crime"]
+    #dataset_names2 = ["breast_cancer_wisconsin", "pumadyn32nm", "skillcraft", "crime"]
     # Main running part of the script
     for dataset_name in dataset_names:
         print(f"\nProcessing dataset: {dataset_name}")
@@ -378,26 +378,26 @@ if __name__ == '__main__':
                     global_importance = shogp.get_sobol()
 
             elif selector == "mutual_info":
-                global_importance = mutual_info_classif(X, y) if mode == "classification" else mutual_info_regression(X, y)
+                global_importance = mutual_info_classif(X_train, y_train) if mode == "classification" else mutual_info_regression(X, y)
 
             elif selector == "lasso":
-                lasso = Lasso().fit(X, y)
+                lasso = Lasso().fit(X_train, y_train)
                 global_importance = np.abs(lasso.coef_)
 
             elif selector == "rfecv":
                 estimator = SVC(kernel="linear") if mode == "classification" else SVR(kernel="linear")
                 rfecv = RFECV(estimator, step=1, cv=5)
-                rfecv.fit(X, y)
+                rfecv.fit(X_train, y_train)
                 global_importance = rfecv.ranking_
 
             elif selector == "k_best":
                 bestfeatures = SelectKBest(score_func=f_classif, k="all") if mode == "classification" else SelectKBest(score_func=f_regression, k="all")
-                fit = bestfeatures.fit(X, y)
+                fit = bestfeatures.fit(X_train, y_train)
                 global_importance = fit.scores_
 
             elif selector == "tree_ensemble":
                 model = ExtraTreesClassifier(n_estimators=50) if mode == "classification" else ExtraTreesRegressor(n_estimators=50)
-                model.fit(X, y)
+                model.fit(X_train, y_train)
                 global_importance = model.feature_importances_
 
             else:
@@ -411,7 +411,7 @@ if __name__ == '__main__':
             sheet.append([selector, execution_time] + list(global_importance))
 
         # Save the Excel file after processing each dataset
-        excel_filename = "feature_importance_3.xlsx"
+        excel_filename = "feature_importance_1.xlsx"
         wb.save(excel_filename)
         print(f"Global feature importance for {dataset_name} saved to {excel_filename}")
         del shogp
