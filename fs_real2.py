@@ -37,6 +37,9 @@ from oak.model_utils import oak_model, save_model
 
 import dill
 
+import warnings
+warnings.filterwarnings("ignore")
+
 def train_svm(X_train, y_train, X_test, y_test):
     """
     Train an SVM or SVR model with imputation for missing values.
@@ -241,12 +244,12 @@ if __name__ == '__main__':
         '''
         # Train SVM on the full dataset and store the best model
         print("Training SVM on the full dataset...")
-        #best_model, best_params, full_score = train_svm(X_train, y_train, X_test, y_test)
+        best_model, best_params, full_score = train_svm(X_train, y_train, X_test, y_test)
 
         # Save the trained model to a file
         model_filename = f"trained_models/svm_{dataset_name}.pkl"
-        #with open(model_filename, "wb") as f:
-        #    pickle.dump(best_model, f)
+        with open(model_filename, "wb") as f:
+            pickle.dump(best_model, f)
         print(f"Saved best SVM model for {dataset_name} to {model_filename}")
 
         # Prepare an Excel sheet for the current dataset
@@ -269,7 +272,7 @@ if __name__ == '__main__':
                     shogp = SHOGP(X_train, y_train, inte_order=int_order, inducing_points=200)
                     print(f"SHOGP model created in {time.time() - start_time} seconds")
                     # Save the model
-                    with open(f"trained_models/{dataset_name}.pkl", "wb") as f:
+                    with open(f"trained_models/shogp_{dataset_name}.pkl", "wb") as f:
                         dill.dump(shogp, f)
                     
                     # load the model    
