@@ -37,6 +37,9 @@ from oak.model_utils import oak_model, save_model
 
 import dill
 
+import warnings
+warnings.filterwarnings("ignore")
+
 def train_svm(X_train, y_train, X_test, y_test):
     """
     Train an SVM or SVR model with imputation for missing values.
@@ -301,8 +304,8 @@ if __name__ == '__main__':
     
     # nomao: 34465 * 118 binary
 
-    dataset_names = ["breast_cancer_wisconsin", "breast_cancer", "pumadyn32nm", "sonar", "nomao", "waveform"] #"steel", "ionosphere", "gas", "pol", "sml"]
-    #dataset_names = ["breast_cancer_wisconsin", "pumadyn32nm", "sonar", "skillcraft", "crime"]
+    #dataset_names = ["breast_cancer_wisconsin", "breast_cancer", "pumadyn32nm", "sonar", "nomao", "waveform"] #"steel", "ionosphere", "gas", "pol", "sml"]
+    dataset_names = ["breast_cancer_wisconsin", "pumadyn32nm", "skillcraft", "crime"]
     # Main running part of the script
     for dataset_name in dataset_names:
         print(f"\nProcessing dataset: {dataset_name}")
@@ -408,7 +411,7 @@ if __name__ == '__main__':
             sheet.append([selector, execution_time] + list(global_importance))
 
         # Save the Excel file after processing each dataset
-        excel_filename = "feature_importance1.xlsx"
+        excel_filename = "feature_importance_3.xlsx"
         wb.save(excel_filename)
         print(f"Global feature importance for {dataset_name} saved to {excel_filename}")
         del shogp
