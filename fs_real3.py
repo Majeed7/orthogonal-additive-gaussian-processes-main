@@ -40,6 +40,11 @@ import dill
 import warnings
 warnings.filterwarnings("ignore")
 
+import os
+current_dir = os.getcwd()
+data_dir = os.path.join(current_dir, "data")
+
+
 def train_svm(X_train, y_train, X_test, y_test):
     """
     Train an SVM or SVR model with imputation for missing values.
@@ -131,11 +136,11 @@ def load_dataset(name):
         return X.values, y.values
     
     elif name == "ionosphere":
-        ds = io.loadmat('data/ionosphere.mat')
+        ds = io.loadmat(f'{data_dir}/ionosphere.mat')
         return ds["X"], ds["y"]
 
     elif name == "gas":
-        data = pd.read_csv('data/gas.csv.gz', sep=',')
+        data = pd.read_csv(f'{data_dir}/gas.csv.gz', sep=',')
         X = data.iloc[:, :-1]
         y = data.iloc[:, -1]
         return X.values, y.values
@@ -148,49 +153,49 @@ def load_dataset(name):
         return X.values, y.values
     
     elif name == "breast_cancer": #regression
-        data = pd.read_csv('data/breastcancer.csv.gz', sep=',')
+        data = pd.read_csv(f'{data_dir}/breastcancer.csv.gz', sep=',')
         X = data.iloc[:, :-1]
         y = data.iloc[:, -1]
         return X.values, y.values
     
     elif name == "pol": #regression
-        data = pd.read_csv('data/pol.csv.gz', sep=',')
+        data = pd.read_csv(f'{data_dir}/pol.csv.gz', sep=',')
         X = data.iloc[:, :-1]
         y = data.iloc[:, -1]
         return X.values, y.values   
     
     elif name == "pumadyn32nm": #regression
-        data = pd.read_csv('data/pumadyn32nm.csv.gz', sep=',')
+        data = pd.read_csv(f'{data_dir}/pumadyn32nm.csv.gz', sep=',')
         X = data.iloc[:, :-1]
         y = data.iloc[:, -1]
         return X.values, y.values
 
     elif name == "skillcraft": #regression
-        data = pd.read_csv('data/skillcraft.csv.gz', sep=',')
+        data = pd.read_csv(f'{data_dir}/skillcraft.csv.gz', sep=',')
         X = data.iloc[:, :-1]
         y = data.iloc[:, -1]
         return X.values, y.values
     
     elif name == "sml": #regression
-        data = pd.read_csv('data/sml.csv.gz', sep=',')
+        data = pd.read_csv(f'{data_dir}/sml.csv.gz', sep=',')
         X = data.iloc[:, :-1]
         y = data.iloc[:, -1]
         return X.values, y.values
     
     elif name == "keggdirected": #regression
-        data = pd.read_csv('data/keggdirected.csv.gz', sep=',')
+        data = pd.read_csv(f'{data_dir}/keggdirected.csv.gz', sep=',')
         X = data.iloc[:, :-1]
         y = data.iloc[:, -1]
         return X.values, y.values
     
     elif name == "keggundirected": #regression
-        data = pd.read_csv('data/keggundirected.csv.gz', sep=',')
+        data = pd.read_csv(f'{data_dir}/keggundirected.csv.gz', sep=',')
         X = data.iloc[:, :-1]
         y = data.iloc[:, -1]
         return X.values, y.values
     
     elif name == "parkinson": #regression
-        data = pd.read_csv('data/parkinson.csv.gz', sep=',')
+        data = pd.read_csv(f'{data_dir}/parkinson.csv.gz', sep=',')
         X = data.iloc[:, :-1]
         y = data.iloc[:, -1]
         return X.values, y.values
@@ -238,7 +243,7 @@ if __name__ == '__main__':
 
     #dataset_names = ["breast_cancer", "sonar", "nomao", "waveform"] #"steel", "ionosphere", "gas", "pol", "sml"]
     #dataset_names2 = ["breast_cancer_wisconsin", "pumadyn32nm", "skillcraft", "crime"]
-    dataset_names3 = ['keggdirected', 'parkinson', "breast_cancer_wisconsin3"]
+    dataset_names3 = ['keggdirected', 'parkinson']
     # Main running part of the script
     for dataset_name in dataset_names3:
         print(f"\nProcessing dataset: {dataset_name}")
