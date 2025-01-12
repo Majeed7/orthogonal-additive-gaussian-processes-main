@@ -140,7 +140,7 @@ def load_dataset(name):
         y = data.iloc[:, -1]
         return X.values, y.values
     
-    elif name == "breast_cancer_wisconsin": #classification
+    elif name == "breast_cancer_wisconsin3": #classification
         breast_cancer_wisconsin_diagnostic = fetch_ucirepo(id=17) 
         # data (as pandas dataframes) 
         X = breast_cancer_wisconsin_diagnostic.data.features 
@@ -217,7 +217,7 @@ def load_dataset(name):
 os.makedirs("trained_models", exist_ok=True)
 
 # Define the list of feature selectors
-feature_selectors = ["AGP-SHAP", "Sobol", "mutual_info", "lasso", "rfecv", "k_best", "tree_ensemble"]
+feature_selectors = ["AGP-SHAP", "Sobol"]#, "mutual_info", "lasso", "rfecv", "k_best", "tree_ensemble"]
 
 # Initialize an Excel workbook to store global importance values
 wb = Workbook()
@@ -236,11 +236,11 @@ if __name__ == '__main__':
     
     # nomao: 34465 * 118 binary
 
-    dataset_names = ["breast_cancer", "sonar", "nomao", "waveform"] #"steel", "ionosphere", "gas", "pol", "sml"]
-    dataset_names2 = ["breast_cancer_wisconsin", "pumadyn32nm", "skillcraft", "crime"]
+    #dataset_names = ["breast_cancer", "sonar", "nomao", "waveform"] #"steel", "ionosphere", "gas", "pol", "sml"]
+    #dataset_names2 = ["breast_cancer_wisconsin", "pumadyn32nm", "skillcraft", "crime"]
     dataset_names3 = ['keggdirected', 'parkinson', "breast_cancer_wisconsin3"]
     # Main running part of the script
-    for dataset_name in dataset_names2:
+    for dataset_name in dataset_names3:
         print(f"\nProcessing dataset: {dataset_name}")
         try:
             X, y = load_dataset(dataset_name)
@@ -341,7 +341,7 @@ if __name__ == '__main__':
             sheet.append([selector, execution_time] + list(global_importance))
 
         # Save the Excel file after processing each dataset
-        excel_filename = "feature_importance_2.xlsx"
+        excel_filename = "keggdirect_agpshap_sobol.xlsx"
         wb.save(excel_filename)
         print(f"Global feature importance for {dataset_name} saved to {excel_filename}")
         del shogp
