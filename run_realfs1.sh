@@ -8,7 +8,7 @@
 #SBATCH --gres=gpu:1
 
 # Change directory to the home folder
-cd ~
+cd ~/orthogonal-additive-gaussian-processes-main
 
 # Load CUDA 12.1
 module unload all
