@@ -87,7 +87,7 @@ def train_svm(X_train, y_train, X_test, y_test):
     if is_classification:
         score = accuracy_score(y_test, y_pred)
     else:
-        rmse = mean_squared_error(y_test, y_pred, squared=False)
+        rmse = mean_squared_error(y_test, y_pred)
         score = rmse
 
     print("Best Parameters:", best_params)
