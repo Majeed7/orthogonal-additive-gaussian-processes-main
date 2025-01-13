@@ -16,7 +16,7 @@ import pickle
 import time
 from openpyxl import Workbook
 from sklearn.feature_selection import mutual_info_classif, mutual_info_regression, SelectKBest, f_classif, f_regression, RFECV
-from sklearn.linear_model import Lasso
+from sklearn.linear_model import LassoCV
 from sklearn.ensemble import ExtraTreesClassifier, ExtraTreesRegressor
 from sklearn.svm import SVC, SVR
 from pathlib import Path
@@ -290,7 +290,7 @@ if __name__ == '__main__':
                 global_importance = mutual_info_classif(X_train, y_train) if mode == "classification" else mutual_info_regression(X_train, y_train)
 
             elif selector == "lasso":
-                lasso = Lasso().fit(X_train, y_train)
+                lasso = LassoCV(alphas=None, cv=5, random_state=42).fit(X_train, y_train)
                 global_importance = np.abs(lasso.coef_)
 
             elif selector == "rfecv":

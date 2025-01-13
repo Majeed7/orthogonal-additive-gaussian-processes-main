@@ -16,7 +16,7 @@ import pickle
 import time
 from openpyxl import Workbook
 from sklearn.feature_selection import mutual_info_classif, mutual_info_regression, SelectKBest, f_classif, f_regression, RFECV
-from sklearn.linear_model import Lasso
+from sklearn.linear_model import LassoCV
 from sklearn.ensemble import ExtraTreesClassifier, ExtraTreesRegressor
 from sklearn.svm import SVC, SVR
 from pathlib import Path
@@ -264,14 +264,14 @@ if __name__ == '__main__':
         Train Support Vector Machine with RBF kernel
         '''
         # Train SVM on the full dataset and store the best model
-        print("Training SVM on the full dataset...")
-        best_model, best_params, full_score = train_svm(X_train, y_train, X_test, y_test)
+        # print("Training SVM on the full dataset...")
+        # best_model, best_params, full_score = train_svm(X_train, y_train, X_test, y_test)
 
-        # Save the trained model to a file
-        model_filename = f"trained_models/svm_{dataset_name}.pkl"
-        with open(model_filename, "wb") as f:
-            pickle.dump(best_model, f)
-        print(f"Saved best SVM model for {dataset_name} to {model_filename}")
+        # # Save the trained model to a file
+        # model_filename = f"trained_models/svm_{dataset_name}.pkl"
+        # with open(model_filename, "wb") as f:
+        #     pickle.dump(best_model, f)
+        # print(f"Saved best SVM model for {dataset_name} to {model_filename}")
 
         # Prepare an Excel sheet for the current dataset
         sheet = wb.create_sheet(title=dataset_name)
@@ -323,7 +323,7 @@ if __name__ == '__main__':
                 global_importance = mutual_info_classif(X_train, y_train) if mode == "classification" else mutual_info_regression(X_train, y_train)
 
             elif selector == "lasso":
-                lasso = Lasso().fit(X_train, y_train)
+                lasso = LassoCV(alphas=None, cv=5, random_state=42).fit(X_train, y_train)
                 global_importance = np.abs(lasso.coef_)
 
             elif selector == "rfecv":
