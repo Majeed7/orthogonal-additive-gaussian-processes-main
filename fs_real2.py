@@ -305,7 +305,7 @@ if __name__ == '__main__':
                 hsic_lasso = HSICLasso()
                 hsic_lasso.input(X_train,y_train.squeeze())
                 if mode == "classification": hsic_lasso.classification(d, covars=X_train) 
-                else: hsic_lasso.regression(d, covars=X)
+                else: hsic_lasso.regression(d, covars=X_train)
                 hsic_ind = hsic_lasso.get_index()
                 init_ranks = (len(hsic_ind) + (d - 1/2 - len(hsic_ind))/2) * np.ones((d,))
                 init_ranks[hsic_ind] = np.arange(1,len(hsic_ind)+1)
