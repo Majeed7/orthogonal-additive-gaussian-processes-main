@@ -49,7 +49,7 @@ if __name__ == '__main__':
     X_sample_no = 200  # number of sampels for generating explanation
     smaple_tbX = 200   # number of samples to be explained
     sample_no_gn = 1000 # number of generated synthesized instances 
-    feature_no_gn = 15 # number of features for the synthesized instances
+    feature_no_gn = 10 # number of features for the synthesized instances
 
     # Example usage of one of the functions
     datasets=['Sine Cosine', 'Trigonometric Exponential', 'Exponential Hyperbolic'] #['Sine Log', 'Sine Cosine', 'Poly Sine', 'Squared Exponentials', 'Tanh Sine', \
@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
         n,d = X.shape
     
-        shogp = SHOGP(X, y, inte_order=5)
+        shogp = SHOGP(X, y, inte_order=5, inducing_points=200)
         #y_hat = shogp.OGP.predict(X)
         #ground_truth_var = np.var(y_hat)
         #var_normalized = np.var(shogp.OGP.scaler_y.transform(y_hat.reshape(-1,1)))

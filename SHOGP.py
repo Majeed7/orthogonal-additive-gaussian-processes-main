@@ -58,11 +58,12 @@ class SHOGP():
         imputer = SimpleImputer(strategy='mean')  # Replace 'mean' with 'median', 'most_frequent', or 'constant'
         X = imputer.fit_transform(X)
 
-        OGP.fit(X, y.reshape(-1,1), optimise=False)
-
+        OGP.fit(X, y.reshape(-1,1), optimise=True)
+        
+        '''
         ## Set the inducing points
-        Z = (kmeans(OGP.m.data[0].numpy(), 200)[0]
-                if X.shape[0] > 200
+        Z = (kmeans(OGP.m.data[0].numpy(), inducing_points)[0]
+                if X.shape[0] > inducing_points
                 else OGP.m.data[0].numpy())
 
         ## Creating Stochastic Variational GP for mini-batch training 
@@ -102,8 +103,7 @@ class SHOGP():
             # Print progress
             if (epoch + 1) % 10 == 0:
                 print(f"Epoch {epoch + 1}/{epochs}, Loss: {loss.numpy()}, Time: {time.time() - start_time:.2f}s")
-
-
+        '''
         measure = GaussianMeasure(mu = 0, var = 1) # Example measure, adjust as needed
         orthogonal_rbf_kernel = OrthogonalRBFKernel(base_kernel, measure)
 
