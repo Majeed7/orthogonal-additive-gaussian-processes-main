@@ -255,7 +255,7 @@ if __name__ == '__main__':
                 
                 if 'shogp' not in locals():
                     start_time = time.time()
-                    shogp = SHOGP(X_train, y_train, inte_order=int_order, inducing_points=200)
+                    shogp = SHOGP(X_train, y_train, inte_order=int_order, inducing_points=800)
                     print(f"SHOGP model created in {time.time() - start_time} seconds")
                     # Save the model
                     with open(f"trained_models/shogp_{dataset_name}.pkl", "wb") as f:
