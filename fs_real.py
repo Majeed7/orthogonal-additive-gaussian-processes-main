@@ -323,7 +323,7 @@ if __name__ == '__main__':
         excel_filename = "feature_importance_1.3.xlsx"
         wb.save(excel_filename)
         print(f"Global feature importance for {dataset_name} saved to {excel_filename}")
-        del shogp
+        #del shogp
     wb.close()
     print("All datasets processed!")
     
