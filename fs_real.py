@@ -303,8 +303,8 @@ if __name__ == '__main__':
     # sonar: 208 * 61 binary 
     
     # nomao: 34465 * 118 binary
-
-    dataset_names = ["breast_cancer", "sonar", "nomao", "waveform"] #"steel", "ionosphere", "gas", "pol", "sml"]
+    #did not work on these datasets: #"steel", "ionosphere", "gas", "pol", "sml"]
+    dataset_names = ["breast_cancer"] #"sonar", "nomao", "waveform"
     #dataset_names2 = ["breast_cancer_wisconsin", "pumadyn32nm", "skillcraft", "crime"]
     # Main running part of the script
     for dataset_name in dataset_names:
