@@ -24,6 +24,7 @@ import gc
 from sklearn.cluster import KMeans
 from sklearn.metrics import pairwise_distances_argmin_min
 from scipy import io 
+from pyHSICLasso import HSICLasso
 
 import gpflow
 from scipy.cluster.vq import kmeans
@@ -34,6 +35,7 @@ from ucimlrepo import fetch_ucirepo
 
 from SHOGP import SHOGP
 from oak.model_utils import oak_model, save_model
+from real_datasets import load_dataset
 
 import dill
 
@@ -95,119 +97,14 @@ def train_svm(X_train, y_train, X_test, y_test):
 
     return best_model, best_params, score
 
-def load_dataset(name):
-    """
-    Load dataset by name.
-
-    Parameters:
-        name: Name of the dataset
-
-    Returns:
-        X, y: Feature matrix and labels
-    """
-    down_sample = False
-    down_sample_rate = 1 
-    imbalance = False
-    if name == "madelon":
-        dataset = fetch_openml(name="madelon", version=1, as_frame=True)
-
-    elif name == "nomao":
-        dataset = fetch_openml(name="nomao", version=1, as_frame=True)
-        down_sample=True
-        imbalance = True
-        down_sample_rate = 0.3
-    
-    elif name == "waveform":
-        dataset = fetch_openml(name="waveform-5000", version=1, as_frame=True)
-
-    elif name == "steel":
-        dataset = fetch_openml(name="steel-plates-fault", version=1, as_frame=True)
-
-    elif name == "sonar":
-        url = "https://archive.ics.uci.edu/ml/machine-learning-databases/undocumented/connectionist-bench/sonar/sonar.all-data"
-        dataset = pd.read_csv(url, header=None)
-        X = dataset.iloc[:, :-1]
-        y = dataset.iloc[:, -1]
-        return X.values, y.values
-    
-    elif name == "ionosphere":
-        ds = io.loadmat('data/ionosphere.mat')
-        return ds["X"], ds["y"]
-
-    elif name == "gas":
-        data = pd.read_csv('data/gas.csv.gz', sep=',')
-        X = data.iloc[:, :-1]
-        y = data.iloc[:, -1]
-        return X.values, y.values
-    
-    elif name == "breast_cancer_wisconsin": #classification
-        data = pd.read_csv('data/breastcancer.csv.gz', sep=',')
-        X = data.iloc[:, :-1]
-        y = data.iloc[:, -1]
-        return X.values, y.values
-    
-    elif name == "breast_cancer": #regression
-        data = pd.read_csv('data/breastcancer.csv.gz', sep=',')
-        X = data.iloc[:, :-1]
-        y = data.iloc[:, -1]
-        return X.values, y.values
-    
-    elif name == "pol": #regression
-        data = pd.read_csv('data/pol.csv.gz', sep=',')
-        X = data.iloc[:, :-1]
-        y = data.iloc[:, -1]
-        return X.values, y.values   
-    
-    elif name == "pumadyn32nm": #regression
-        data = pd.read_csv('data/pumadyn32nm.csv.gz', sep=',')
-        X = data.iloc[:, :-1]
-        y = data.iloc[:, -1]
-        return X.values, y.values
-
-    elif name == "skillcraft": #regression
-        data = pd.read_csv('data/skillcraft.csv.gz', sep=',')
-        X = data.iloc[:, :-1]
-        y = data.iloc[:, -1]
-        return X.values, y.values
-    
-    elif name == "sml": #regression
-        data = pd.read_csv('data/sml.csv.gz', sep=',')
-        X = data.iloc[:, :-1]
-        y = data.iloc[:, -1]
-        return X.values, y.values
-    
-    elif name == "crime":
-        X, y = shap.datasets.communitiesandcrime()
-        return X.values, y
-    else:
-        raise ValueError(f"Unknown dataset: {name}")
-
-    X, y = dataset.data, dataset.target
-
-    if down_sample:
-        if imbalance:
-            rus = RandomUnderSampler(random_state=42)
-            X_downsampled, y_downsampled = rus.fit_resample(X, y)
-        
-        X, _, y, _ = train_test_split(X_downsampled, y_downsampled, train_size=down_sample_rate, random_state=42)
-
-    return np.array(X), np.array(y)
-
-
 # Ensure a directory exists for saving models
 os.makedirs("trained_models", exist_ok=True)
 
 # Define the list of feature selectors
-feature_selectors = ["AGP-SHAP", "Sobol", "mutual_info", "lasso", "k_best", "tree_ensemble"] # "rfecv", 
+feature_selectors = ["HSICLasso", "mutual_info", "lasso", "k_best", "tree_ensemble"] #["AGP-SHAP", "Sobol",] #, "rfecv"]
 
 # Initialize an Excel workbook to store global importance values
 wb = Workbook()
-
-results_xsl = Path('agp_fs_real.xlsx')
-if not os.path.exists(results_xsl):
-    # Create an empty Excel file if it doesn't exist
-    pd.DataFrame().to_excel(results_xsl, index=False)
-
 
 
 '''
@@ -304,9 +201,10 @@ if __name__ == '__main__':
     
     # nomao: 34465 * 118 binary
     #did not work on these datasets: #"steel", "ionosphere", "gas", "pol", "sml"]
-    dataset_names = ["breast_cancer"] #"sonar", "nomao", "waveform"
-    #dataset_names2 = ["breast_cancer_wisconsin", "pumadyn32nm", "skillcraft", "crime"]
-    # Main running part of the script
+    
+    dataset_names = ["breast_cancer", "sonar", "nomao", "waveform"] #"steel", "ionosphere", "gas", "pol", "sml"]
+    #dataset_names2 = ["breast_cancer_wisconsin", "pumadyn32nm", "skillcraft"]
+    #dataset_names3 = ['keggdirected', 'parkinson', "crime"]    # Main running part of the script
     for dataset_name in dataset_names:
         print(f"\nProcessing dataset: {dataset_name}")
         try:
@@ -333,14 +231,14 @@ if __name__ == '__main__':
         Train Support Vector Machine with RBF kernel
         '''
         # Train SVM on the full dataset and store the best model
-        print("Training SVM on the full dataset...")
-        best_model, best_params, full_score = train_svm(X_train, y_train, X_test, y_test)
+        # print("Training SVM on the full dataset...")
+        # best_model, best_params, full_score = train_svm(X_train, y_train, X_test, y_test)
 
-        # Save the trained model to a file
-        model_filename = f"trained_models/svm_{dataset_name}.pkl"
-        with open(model_filename, "wb") as f:
-            pickle.dump(best_model, f)
-        print(f"Saved best SVM model for {dataset_name} to {model_filename}")
+        # # Save the trained model to a file
+        # model_filename = f"trained_models/svm_{dataset_name}.pkl"
+        # with open(model_filename, "wb") as f:
+        #     pickle.dump(best_model, f)
+        # print(f"Saved best SVM model for {dataset_name} to {model_filename}")
 
         # Prepare an Excel sheet for the current dataset
         sheet = wb.create_sheet(title=dataset_name)
@@ -377,8 +275,19 @@ if __name__ == '__main__':
                     start_time = time.time()
                     global_importance = shogp.get_sobol()
 
+            elif selector == "HSICLasso":
+                hsic_lasso = HSICLasso()
+                hsic_lasso.input(X_train,y_train.squeeze())
+                if mode == "classification": hsic_lasso.classification(d, covars=X_train) 
+                else: hsic_lasso.regression(d, covars=X)
+                hsic_ind = hsic_lasso.get_index()
+                init_ranks = (len(hsic_ind) + (d - 1/2 - len(hsic_ind))/2) * np.ones((d,))
+                init_ranks[hsic_ind] = np.arange(1,len(hsic_ind)+1)
+                global_importance = d - init_ranks 
+
+
             elif selector == "mutual_info":
-                global_importance = mutual_info_classif(X_train, y_train) if mode == "classification" else mutual_info_regression(X, y)
+                global_importance = mutual_info_classif(X_train, y_train) if mode == "classification" else mutual_info_regression(X_train, y_train)
 
             elif selector == "lasso":
                 lasso = Lasso().fit(X_train, y_train)
@@ -411,7 +320,7 @@ if __name__ == '__main__':
             sheet.append([selector, execution_time] + list(global_importance))
 
         # Save the Excel file after processing each dataset
-        excel_filename = "feature_importance_1.xlsx"
+        excel_filename = "feature_importance_1.3.xlsx"
         wb.save(excel_filename)
         print(f"Global feature importance for {dataset_name} saved to {excel_filename}")
         del shogp

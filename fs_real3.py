@@ -24,6 +24,7 @@ import gc
 from sklearn.cluster import KMeans
 from sklearn.metrics import pairwise_distances_argmin_min
 from scipy import io 
+from pyHSICLasso import HSICLasso
 
 import gpflow
 from scipy.cluster.vq import kmeans
@@ -44,6 +45,7 @@ import os
 current_dir = os.getcwd()
 data_dir = os.path.join(current_dir, "data")
 
+from real_datasets import load_dataset
 
 def train_svm(X_train, y_train, X_test, y_test):
     """
@@ -100,6 +102,7 @@ def train_svm(X_train, y_train, X_test, y_test):
 
     return best_model, best_params, score
 
+''' 
 def load_dataset(name):
     """
     Load dataset by name.
@@ -216,23 +219,16 @@ def load_dataset(name):
         X, _, y, _ = train_test_split(X_downsampled, y_downsampled, train_size=down_sample_rate, random_state=42)
 
     return np.array(X), np.array(y)
-
+'''
 
 # Ensure a directory exists for saving models
 os.makedirs("trained_models", exist_ok=True)
 
 # Define the list of feature selectors
-feature_selectors = ["AGP-SHAP", "Sobol", "mutual_info", "lasso", "k_best", "tree_ensemble"] #, "rfecv"]
+feature_selectors = ["HSICLasso", "mutual_info", "lasso", "k_best", "tree_ensemble"] #["AGP-SHAP", "Sobol",] #, "rfecv"]
 
 # Initialize an Excel workbook to store global importance values
 wb = Workbook()
-
-results_xsl = Path('agp_fs_real.xlsx')
-if not os.path.exists(results_xsl):
-    # Create an empty Excel file if it doesn't exist
-    pd.DataFrame().to_excel(results_xsl, index=False)
-
-
 
 if __name__ == '__main__':
     # steel: 1941 * 33    binary
@@ -242,8 +238,8 @@ if __name__ == '__main__':
     # nomao: 34465 * 118 binary
 
     #dataset_names = ["breast_cancer", "sonar", "nomao", "waveform"] #"steel", "ionosphere", "gas", "pol", "sml"]
-    #dataset_names2 = ["breast_cancer_wisconsin", "pumadyn32nm", "skillcraft", "crime"]
-    dataset_names3 = ['keggdirected', 'parkinson']
+    #dataset_names2 = ["breast_cancer_wisconsin", "pumadyn32nm", "skillcraft"]
+    dataset_names3 = ['keggdirected', 'parkinson', "crime"]
     # Main running part of the script
     for dataset_name in dataset_names3:
         print(f"\nProcessing dataset: {dataset_name}")
@@ -312,27 +308,38 @@ if __name__ == '__main__':
                     start_time = time.time()
                     global_importance = shogp.get_sobol()
 
+            elif selector == "HSICLasso":
+                hsic_lasso = HSICLasso()
+                hsic_lasso.input(X_train,y_train.squeeze())
+                if mode == "classification": hsic_lasso.classification(d, covars=X_train) 
+                else: hsic_lasso.regression(d, covars=X)
+                hsic_ind = hsic_lasso.get_index()
+                init_ranks = (len(hsic_ind) + (d - 1/2 - len(hsic_ind))/2) * np.ones((d,))
+                init_ranks[hsic_ind] = np.arange(1,len(hsic_ind)+1)
+                global_importance = d - init_ranks 
+
+
             elif selector == "mutual_info":
-                global_importance = mutual_info_classif(X, y) if mode == "classification" else mutual_info_regression(X, y)
+                global_importance = mutual_info_classif(X_train, y_train) if mode == "classification" else mutual_info_regression(X_train, y_train)
 
             elif selector == "lasso":
-                lasso = Lasso().fit(X, y)
+                lasso = Lasso().fit(X_train, y_train)
                 global_importance = np.abs(lasso.coef_)
 
             elif selector == "rfecv":
                 estimator = SVC(kernel="linear") if mode == "classification" else SVR(kernel="linear")
                 rfecv = RFECV(estimator, step=1, cv=5)
-                rfecv.fit(X, y)
+                rfecv.fit(X_train, y_train)
                 global_importance = rfecv.ranking_
 
             elif selector == "k_best":
                 bestfeatures = SelectKBest(score_func=f_classif, k="all") if mode == "classification" else SelectKBest(score_func=f_regression, k="all")
-                fit = bestfeatures.fit(X, y)
+                fit = bestfeatures.fit(X_train, y_train)
                 global_importance = fit.scores_
 
             elif selector == "tree_ensemble":
                 model = ExtraTreesClassifier(n_estimators=50) if mode == "classification" else ExtraTreesRegressor(n_estimators=50)
-                model.fit(X, y)
+                model.fit(X_train, y_train)
                 global_importance = model.feature_importances_
 
             else:
@@ -346,7 +353,7 @@ if __name__ == '__main__':
             sheet.append([selector, execution_time] + list(global_importance))
 
         # Save the Excel file after processing each dataset
-        excel_filename = "feature_importance_3.2.xlsx"
+        excel_filename = "feature_importance_3.3.xlsx"
         wb.save(excel_filename)
         print(f"Global feature importance for {dataset_name} saved to {excel_filename}")
         del shogp
