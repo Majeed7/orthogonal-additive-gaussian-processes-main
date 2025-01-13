@@ -101,7 +101,7 @@ def train_svm(X_train, y_train, X_test, y_test):
 os.makedirs("trained_models", exist_ok=True)
 
 # Define the list of feature selectors
-feature_selectors = ["HSICLasso", "mutual_info", "lasso", "k_best", "tree_ensemble"] #["AGP-SHAP", "Sobol",] #, "rfecv"]
+feature_selectors = ["AGP-SHAP"] # [", "Sobol",HSICLasso", "mutual_info", "lasso", "k_best", "tree_ensemble"] #["AGP-SHAP", "Sobol",] #, "rfecv"]
 
 # Initialize an Excel workbook to store global importance values
 wb = Workbook()
@@ -202,18 +202,16 @@ if __name__ == '__main__':
     # nomao: 34465 * 118 binary
     #did not work on these datasets: #"steel", "ionosphere", "gas", "pol", "sml"]
     
-    dataset_names = ["breast_cancer", "sonar", "nomao", "waveform"] #"steel", "ionosphere", "gas", "pol", "sml"]
-    #dataset_names2 = ["breast_cancer_wisconsin", "pumadyn32nm", "skillcraft"]
-    #dataset_names3 = ['keggdirected', 'parkinson', "crime"]    # Main running part of the script
-    for dataset_name in dataset_names:
+    #dataset_names = ["breast_cancer", "sonar", "waveform"] #"nomao" did not work for HSIC
+    #dataset_names2 = ["breast_cancer_wisconsin", "skillcraft"]
+    dataset_names3 = ['keggdirected', "pumadyn32nm", 'parkinson', "crime"]    # Main running part of the script
+    for dataset_name in dataset_names3:
         print(f"\nProcessing dataset: {dataset_name}")
         try:
             X, y = load_dataset(dataset_name)
         except Exception as e:
             print(f"Failed to load dataset {dataset_name}: {e}")
             continue
-
-
 
         # Determine if the dataset is for classification or regression
         mode = "classification" if type_of_target(y) in ["binary", "multiclass"] else "regression"
@@ -284,7 +282,6 @@ if __name__ == '__main__':
                 init_ranks = (len(hsic_ind) + (d - 1/2 - len(hsic_ind))/2) * np.ones((d,))
                 init_ranks[hsic_ind] = np.arange(1,len(hsic_ind)+1)
                 global_importance = d - init_ranks 
-
 
             elif selector == "mutual_info":
                 global_importance = mutual_info_classif(X_train, y_train) if mode == "classification" else mutual_info_regression(X_train, y_train)
