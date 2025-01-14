@@ -57,53 +57,57 @@ class SHOGP():
 
         imputer = SimpleImputer(strategy='mean')  # Replace 'mean' with 'median', 'most_frequent', or 'constant'
         X = imputer.fit_transform(X)
-
-        OGP.fit(X, y.reshape(-1,1), optimise=True)
         
-        '''
-        ## Set the inducing points
-        Z = (kmeans(OGP.m.data[0].numpy(), inducing_points)[0]
-                if X.shape[0] > inducing_points
-                else OGP.m.data[0].numpy())
-
-        ## Creating Stochastic Variational GP for mini-batch training 
-        OGP.m = gpflow.models.SVGP(
-                    kernel=OGP.m.kernel,
-                    likelihood=likelihood,
-                    inducing_variable=Z,
-                    whiten=True,
-                    q_diag=True)
-
-
-        ## mini-batch training 
-        print("training with mini-batch")
-        batch_size = np.min((500, X.shape[0]))  # Define the batch size
-        dataset = tf.data.Dataset.from_tensor_slices((X, y))
-        dataset = dataset.shuffle(buffer_size=len(X)).batch(batch_size)
-
-        optimizer = tf.optimizers.Adam(learning_rate=0.01)
-        inducing_points = OGP.m.inducing_variable.Z
-        gpflow.set_trainable(inducing_points, False)
-        gpflow.utilities.print_summary(OGP.m)
-
-        # Training loop
-        epochs = 200
-        start_time = time.time()
-        for epoch in range(epochs):
-            for X_batch, y_batch in dataset:
-                
-                with tf.GradientTape() as tape:
-                    # Compute the negative ELBO for the batch
-                    loss = -OGP.m.elbo((X_batch, y_batch))
-
-                # Apply gradients
-                gradients = tape.gradient(loss, OGP.m.trainable_variables)
-                optimizer.apply_gradients(zip(gradients, OGP.m.trainable_variables))
+        if target_type == "continuous":
+            OGP.fit(X, y, optimise=True)
             
-            # Print progress
-            if (epoch + 1) % 10 == 0:
-                print(f"Epoch {epoch + 1}/{epochs}, Loss: {loss.numpy()}, Time: {time.time() - start_time:.2f}s")
-        '''
+        elif target_type == "x":
+            
+            OGP.fit(X, y.reshape(-1,1), optimise=False)
+        
+            ## Set the inducing points
+            Z = (kmeans(OGP.m.data[0].numpy(), inducing_points)[0]
+                    if X.shape[0] > inducing_points
+                    else OGP.m.data[0].numpy())
+
+            ## Creating Stochastic Variational GP for mini-batch training 
+            OGP.m = gpflow.models.SVGP(
+                        kernel=OGP.m.kernel,
+                        likelihood=likelihood,
+                        inducing_variable=Z,
+                        whiten=True,
+                        q_diag=True)
+
+
+            ## mini-batch training 
+            print("training with mini-batch")
+            batch_size = np.min((1000, X.shape[0]))  # Define the batch size
+            dataset = tf.data.Dataset.from_tensor_slices((X, y))
+            dataset = dataset.shuffle(buffer_size=len(X)).batch(batch_size)
+
+            optimizer = tf.optimizers.Adam(learning_rate=0.01)
+            inducing_points = OGP.m.inducing_variable.Z
+            gpflow.set_trainable(inducing_points, False)
+            gpflow.utilities.print_summary(OGP.m)
+
+            # Training loop
+            epochs = 300
+            start_time = time.time()
+            for epoch in range(epochs):
+                for X_batch, y_batch in dataset:
+                    
+                    with tf.GradientTape() as tape:
+                        # Compute the negative ELBO for the batch
+                        loss = -OGP.m.elbo((X_batch, y_batch))
+
+                    # Apply gradients
+                    gradients = tape.gradient(loss, OGP.m.trainable_variables)
+                    optimizer.apply_gradients(zip(gradients, OGP.m.trainable_variables))
+                
+                # Print progress
+                if (epoch + 1) % 10 == 0:
+                    print(f"Epoch {epoch + 1}/{epochs}, Loss: {loss.numpy()}, Time: {time.time() - start_time:.2f}s")
+        
         measure = GaussianMeasure(mu = 0, var = 1) # Example measure, adjust as needed
         orthogonal_rbf_kernel = OrthogonalRBFKernel(base_kernel, measure)
 
@@ -217,6 +221,7 @@ class SHOGP():
                           mu = self.ORBF.measure.mu)
             gamma_list.append(gamma.astype(np.float64))
 
+        self.v0_G = self.OGP.m.likelihood.variance.numpy()
         variances = self.OGP.m.kernel.variances[1:] ## The first variance corresponds to the bias term
 
         ## For global explainability, in order to preserve the additive attribution, we need to keep the original data input
@@ -238,8 +243,11 @@ class SHOGP():
         # sv[2] = tf.matmul(tf.matmul(tf.transpose(alpha), gl_2), alpha).numpy()
 
         # sum_sv =  tf.matmul(tf.matmul(tf.transpose(alpha), gl_hat), alpha).numpy()
-        
-        shapley_vals = np.zeros((self.d,))
+
+        # kernel_mat = self.OGP.m.kernel(self.X_base, self.X_base)
+        # y_hat = self.OGP.predict(self.X_base)
+        # alpha_bar = np.linalg.solve(kernel_mat, y_hat)
+        shapley_vals = np.zeros(self.d,)
         for i in range(self.d):
             gamma_hat_i, _ = self._gamma_hat(dim=i, gamma_list=gamma_list, variances = variances)
             shapley_vals[i] = tf.matmul(tf.matmul(tf.transpose(alpha), gamma_hat_i), alpha).numpy()

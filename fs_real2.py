@@ -218,7 +218,7 @@ def load_dataset(name):
 os.makedirs("trained_models", exist_ok=True)
 
 # Define the list of feature selectors
-feature_selectors = ["HSICLasso", "mutual_info", "lasso", "k_best", "tree_ensemble"] #["AGP-SHAP", "Sobol",] #, "rfecv"]
+feature_selectors = ["AGP-SHAP", "Sobol", "HSICLasso", "mutual_info", "lasso", "k_best", "tree_ensemble"] # "rfecv"]
 
 # Initialize an Excel workbook to store global importance values
 wb = Workbook()
@@ -231,7 +231,7 @@ if __name__ == '__main__':
     # nomao: 34465 * 118 binary
 
     #dataset_names = ["breast_cancer", "sonar", "nomao", "waveform"] #"steel", "ionosphere", "gas", "pol", "sml"]
-    dataset_names2 = ["breast_cancer_wisconsin", "pumadyn32nm", "skillcraft"]
+    dataset_names2 = ["breast_cancer", "breast_cancer_wisconsin", "pumadyn32nm", "skillcraft"]
     #dataset_names3 = ['keggdirected', 'parkinson', "crime"]
     # Main running part of the script
     for dataset_name in dataset_names2:
@@ -283,7 +283,7 @@ if __name__ == '__main__':
                 
                 if 'shogp' not in locals():
                     start_time = time.time()
-                    shogp = SHOGP(X_train, y_train, inte_order=int_order, inducing_points=200)
+                    shogp = SHOGP(X_train, y_train, inte_order=int_order)#, inducing_points=200)
                     print(f"SHOGP model created in {time.time() - start_time} seconds")
                     # Save the model
                     with open(f"trained_models/shogp_{dataset_name}.pkl", "wb") as f:

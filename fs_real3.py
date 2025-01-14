@@ -225,7 +225,7 @@ def load_dataset(name):
 os.makedirs("trained_models", exist_ok=True)
 
 # Define the list of feature selectors
-feature_selectors = ["HSICLasso", "mutual_info", "lasso", "k_best", "tree_ensemble"] #["AGP-SHAP", "Sobol",] #, "rfecv"]
+feature_selectors = ["AGP-SHAP"] #["HSICLasso", "mutual_info", "lasso", "k_best", "tree_ensemble"] #["AGP-SHAP", "Sobol",] #, "rfecv"]
 
 # Initialize an Excel workbook to store global importance values
 wb = Workbook()
@@ -237,11 +237,13 @@ if __name__ == '__main__':
     
     # nomao: 34465 * 118 binary
 
-    #dataset_names = ["breast_cancer", "sonar", "nomao", "waveform"] #"steel", "ionosphere", "gas", "pol", "sml"]
-    #dataset_names2 = ["breast_cancer_wisconsin", "pumadyn32nm", "skillcraft"]
+    dataset_names = ["breast_cancer", "sonar", "nomao", "waveform"] #"steel", "ionosphere", "gas", "pol", "sml"]
+    dataset_names2 = ["breast_cancer_wisconsin", "pumadyn32nm", "skillcraft"]
     dataset_names3 = ['keggdirected', 'parkinson', "crime"]
+
+    ds = dataset_names + dataset_names2 + dataset_names3
     # Main running part of the script
-    for dataset_name in dataset_names3:
+    for dataset_name in ds:
         print(f"\nProcessing dataset: {dataset_name}")
         try:
             X, y = load_dataset(dataset_name)

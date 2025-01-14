@@ -1,11 +1,11 @@
 import dill 
 import numpy as np 
 
-dataset_name = "pumadyn32nm"
+dataset_name = "keggdirected"
   
-with open(f"trained_models/shogp_{dataset_name}.pkl", "rb") as f:
-        loaded_model = dill.load(f)
+with open(f"trained_models/shogp_{dataset_name}_sgpr.pkl", "rb") as f:
+        shogp = dill.load(f)
 
-sv, sv_res = loaded_model.global_shapley_value()
+sv, sv_res = shogp.global_shapley_value()
 
 print("done!")
