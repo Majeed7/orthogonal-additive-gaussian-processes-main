@@ -347,7 +347,7 @@ if __name__ == '__main__':
             sheet.append([selector, execution_time] + list(global_importance))
 
         # Save the Excel file after processing each dataset
-        excel_filename = "feature_importance_2.4_pumadyn32nm.xlsx"
+        excel_filename = "feature_importance_2.5_pumadyn32nm.xlsx"
         wb.save(excel_filename)
         print(f"Global feature importance for {dataset_name} saved to {excel_filename}")
         del shogp
