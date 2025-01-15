@@ -12,6 +12,7 @@ from openpyxl import load_workbook, Workbook
 from sklearn.preprocessing import LabelEncoder
 from sklearn.utils.multiclass import type_of_target
 import sys
+from sklearn.model_selection import GridSearchCV
 
 from real_datasets import load_dataset
 
@@ -19,7 +20,6 @@ def reload_dataset(dataset_name):
     """Reload the dataset by its name."""
     # Assuming you have a similar function like `load_dataset` in your earlier code
     return load_dataset(dataset_name)
-
 
 def calculate_classification_scores(y_true, y_pred, y_prob):
     """Calculate 5 classification metrics."""
@@ -31,7 +31,6 @@ def calculate_classification_scores(y_true, y_pred, y_prob):
         "F1-Score": f1_score(y_true, y_pred)
     }
 
-
 def calculate_regression_scores(y_true, y_pred):
     """Calculate 5 regression metrics."""
     return {
@@ -41,9 +40,6 @@ def calculate_regression_scores(y_true, y_pred):
         "RMSE": mean_squared_error(y_true, y_pred),
         "Explained Variance": explained_variance_score(y_true, y_pred)
     }
-
-
-from sklearn.model_selection import GridSearchCV
 
 def train_svm_on_selected_features(X_train, y_train, X_test, y_test, is_classification):
     """
@@ -99,7 +95,6 @@ def train_svm_on_selected_features(X_train, y_train, X_test, y_test, is_classifi
         scores = calculate_regression_scores(y_test, y_pred)
 
     return scores
-
 
 def main():
 
@@ -174,7 +169,6 @@ def main():
 
     # Save the results to a new Excel file
     results_wb.save(f"svm_feature_selector_results_{top_precent}.xlsx")
-
 
 if __name__ == "__main__":
     main()
