@@ -11,6 +11,7 @@ from sklearn.model_selection import train_test_split
 from openpyxl import load_workbook, Workbook
 from sklearn.preprocessing import LabelEncoder
 from sklearn.utils.multiclass import type_of_target
+import sys
 
 from real_datasets import load_dataset
 
@@ -101,6 +102,24 @@ def train_svm_on_selected_features(X_train, y_train, X_test, y_test, is_classifi
 
 
 def main():
+
+    # Check if an argument is passed
+    if len(sys.argv) < 2:
+        print("No argument passed. Using default value: 0.1")
+        top_precent = 0.1  # Set a default value if no argument is provided
+    else:
+        # Retrieve the parameter passed from Bash
+        parameter = sys.argv[1]
+
+        # Try converting the argument to a number
+        try:
+            # Try converting to an integer
+            top_precent = float(parameter)
+        except ValueError:
+            # If it fails, try converting to a float
+            top_precent = 0.1
+            print("Cannot process the value. Using default value: 0.1")
+
     # Load the Excel file with feature importance data
     feature_importance_file = "results/real_feature_importances.xlsx"
     wb = load_workbook(feature_importance_file)
@@ -138,7 +157,7 @@ def main():
 
             # Select the top 10% most influential features
             num_features = len(feature_importance)
-            top_n = max(1, num_features // 20)  # At least one feature
+            top_n = max(1, num_features // (1 / top_precent))  # At least one feature
             top_indices = np.argsort(np.abs(feature_importance))[-top_n:]
 
             # Subset the dataset with the selected features
@@ -152,7 +171,7 @@ def main():
             result_sheet.append([feature_selector] + [scores[title] for title in score_titles])
 
     # Save the results to a new Excel file
-    results_wb.save("svm_feature_selector_results.xlsx")
+    results_wb.save(f"svm_feature_selector_results_{top_precent}.xlsx")
 
 
 if __name__ == "__main__":

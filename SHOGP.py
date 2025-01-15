@@ -256,7 +256,7 @@ class SHOGP():
             shapley_vals = shapley_vals / np.sum(shapley_vals)
             shapley_vals_rescaled = shapley_vals 
         else:
-            shapley_vals = shapley_vals / (np.sum(shapley_vals) + self.OGP.m.likelihood.variance.numpy()) # normalizing Shapley value
+            shapley_vals = shapley_vals / (np.sum(shapley_vals) + self.v0_G) # normalizing Shapley value
             shapley_vals_rescaled = shapley_vals * self.OGP.scaler_y.var_
 
         return shapley_vals_rescaled, shapley_vals
