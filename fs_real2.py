@@ -218,7 +218,7 @@ def load_dataset(name):
 os.makedirs("trained_models", exist_ok=True)
 
 # Define the list of feature selectors
-feature_selectors = ["AGP-SHAP", "Sobol", "HSICLasso", "mutual_info", "lasso", "k_best", "tree_ensemble"] # "rfecv"]
+feature_selectors = ["AGP-SHAP"]#, "Sobol", "HSICLasso", "mutual_info", "lasso", "k_best", "tree_ensemble"] # "rfecv"]
 
 # Initialize an Excel workbook to store global importance values
 wb = Workbook()
@@ -231,10 +231,11 @@ if __name__ == '__main__':
     # nomao: 34465 * 118 binary
 
     #dataset_names = ["breast_cancer", "sonar", "nomao", "waveform"] #"steel", "ionosphere", "gas", "pol", "sml"]
-    dataset_names2 = ["breast_cancer", "breast_cancer_wisconsin", "pumadyn32nm", "skillcraft"]
+    #dataset_names2 = ["breast_cancer", "breast_cancer_wisconsin", "pumadyn32nm", "skillcraft"]
     #dataset_names3 = ['keggdirected', 'parkinson', "crime"]
+    dataset_name = ["pumadyn32nm"]
     # Main running part of the script
-    for dataset_name in dataset_names2:
+    for dataset_name in dataset_name:
         print(f"\nProcessing dataset: {dataset_name}")
         try:
             X, y = load_dataset(dataset_name)
@@ -245,6 +246,7 @@ if __name__ == '__main__':
         # Determine if the dataset is for classification or regression
         mode = "classification" if type_of_target(y) in ["binary", "multiclass"] else "regression"
         if mode != "regression":
+            continue
             label_encoder = LabelEncoder()
             label_encoder.fit_transform(y)
             y = label_encoder.fit_transform(y).reshape(-1, 1)
@@ -345,10 +347,10 @@ if __name__ == '__main__':
             sheet.append([selector, execution_time] + list(global_importance))
 
         # Save the Excel file after processing each dataset
-        excel_filename = "feature_importance_2.3.xlsx"
+        excel_filename = "feature_importance_2.4_pumadyn32nm.xlsx"
         wb.save(excel_filename)
         print(f"Global feature importance for {dataset_name} saved to {excel_filename}")
-        #del shogp
+        del shogp
     wb.close()
     print("All datasets processed!")
     
