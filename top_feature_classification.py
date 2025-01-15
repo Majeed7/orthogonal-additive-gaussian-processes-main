@@ -129,7 +129,7 @@ def main():
 
     for sheet_name in wb.sheetnames:
         print(f"Processing dataset: {sheet_name}")
-        if sheet_name in ['keggdirected']: continue
+        if sheet_name not in ['pumadyn32nm']: continue
         sheet = wb[sheet_name]
 
         # Reload the dataset
@@ -153,11 +153,13 @@ def main():
         # Process each feature selector (row) in the sheet
         for row in sheet.iter_rows(min_row=2, values_only=True):
             feature_selector = row[0]
+            if feature_selector is None:
+                break
             feature_importance = np.array(row[2:])
 
             # Select the top 10% most influential features
             num_features = len(feature_importance)
-            top_n = max(1, num_features // (1 / top_precent))  # At least one feature
+            top_n = int(max(1, num_features // (1 / top_precent)))  # At least one feature
             top_indices = np.argsort(np.abs(feature_importance))[-top_n:]
 
             # Subset the dataset with the selected features
