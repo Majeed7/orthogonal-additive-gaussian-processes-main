@@ -59,7 +59,7 @@ def train_svm_on_selected_features(X_train, y_train, X_test, y_test, svm_params,
             "svm__gamma": [0.5, 1, 2],  # Kernel coefficient
             'svm__epsilon': [0.1, 0.2, 0.5]
         }
-
+        
     # Create the SVM model
     model = SVC(probability=True) if is_classification else SVR()
 
@@ -70,8 +70,7 @@ def train_svm_on_selected_features(X_train, y_train, X_test, y_test, svm_params,
     ])
 
     # Perform Grid Search for hyperparameter tuning
-    grid_search = GridSearchCV(
-        pipeline, param_grid, cv=4, scoring="accuracy" if is_classification else "neg_mean_squared_error")
+    grid_search = GridSearchCV(pipeline, param_grid, cv=3, n_jobs=-1, scoring="accuracy" if is_classification else "neg_mean_squared_error")
     grid_search.fit(X_train, y_train)
 
     # Get the best estimator
@@ -98,16 +97,16 @@ def train_svm_on_selected_features2(X_train, y_train, X_test, y_test, svm_params
         'model__n_estimators': [500, 1000],  # Number of trees
         'model__max_depth': [None, 10, 20],  # Maximum depth of trees
         # Minimum samples required to split an internal node
-        'model__min_samples_split': [2, 10],
+        # 'model__min_samples_split': [2, 10],
     }
 
     pipeline = Pipeline([
         ("imputer", SimpleImputer(strategy="mean")),  # Handle missing values
-        ("model", model)  
+        ("model", model)
     ])
 
     # Set up GridSearchCV
-    grid_search = GridSearchCV(estimator=pipeline, param_grid=param_grid, cv=5,
+    grid_search = GridSearchCV(estimator=pipeline, param_grid=param_grid, cv=3,
                                n_jobs=-1, verbose=2, scoring='accuracy' if is_classification else 'r2')
 
     # Perform grid search to find best hyperparameters
@@ -141,7 +140,7 @@ def select_features_incrementally(X_train, y_train, X_test, y_test, ranked_featu
         X_test_subset = X_test[:, selected_features]
 
         # Train the SVM on the selected features and evaluate
-        scores = train_svm_on_selected_features2(
+        scores = train_svm_on_selected_features(
             X_train_subset, y_train, X_test_subset, y_test, svm_params, is_classification)
 
         # Track performance for this number of selected features
@@ -172,15 +171,8 @@ def main():
 
     # Process datasets in the Excel sheet
     for sheet_name in wb.sheetnames:
-        if sheet_name != "breast_cancer":
-            continue
         print(f"Processing dataset: {sheet_name}")
         sheet = wb[sheet_name]
-
-        # Load the best pre-trained SVM model to get its hyperparameters
-        pre_trained_svm = load_best_svm_model(
-            model_path=f'trained_models/regression/svm_{sheet_name}.pkl')
-        svm_params = get_svm_hyperparameters(pre_trained_svm)
 
         # Reload the dataset
         X, y = reload_dataset(sheet_name)
@@ -188,7 +180,13 @@ def main():
         # Determine if it's classification or regression
         is_classification = type_of_target(y) in ["binary", "multiclass"]
         if is_classification:
+            continue
             y = LabelEncoder().fit_transform(y)
+
+        # Load the best pre-trained SVM model to get its hyperparameters
+        pre_trained_svm = load_best_svm_model(
+            model_path=f'trained_models/regression/svm_{sheet_name}.pkl')
+        svm_params = get_svm_hyperparameters(pre_trained_svm)
 
         # Train-test split
         X_train, X_test, y_train, y_test = train_test_split(
@@ -228,7 +226,7 @@ def main():
                 [feature_selector] + [result[score_titles[0]] for result in performance])
 
     # Save the results to a new Excel file
-    results_wb.save(f"svm_feature_selector_results.xlsx")
+    results_wb.save(f"class_svm_feature_selector_results.xlsx")
 
 
 if __name__ == "__main__":
