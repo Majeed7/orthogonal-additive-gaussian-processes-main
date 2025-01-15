@@ -254,6 +254,7 @@ if __name__ == '__main__':
         # Determine if the dataset is for classification or regression
         mode = "classification" if type_of_target(y) in ["binary", "multiclass"] else "regression"
         if mode != "regression":
+            continue
             label_encoder = LabelEncoder()
             label_encoder.fit_transform(y)
             y = label_encoder.fit_transform(y).reshape(-1, 1)
