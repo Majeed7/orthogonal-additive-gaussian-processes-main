@@ -204,7 +204,7 @@ if __name__ == '__main__':
     
     #dataset_names = ["breast_cancer", "sonar", "waveform"] #"nomao" did not work for HSIC
     #dataset_names2 = ["breast_cancer_wisconsin", "skillcraft"]
-    dataset_names3 = ['keggdirected', "pumadyn32nm", 'parkinson', "crime"]    # Main running part of the script
+    dataset_names3 = ['parkinson', 'keggdirected', "pumadyn32nm", "crime"]    # Main running part of the script
     for dataset_name in dataset_names3:
         print(f"\nProcessing dataset: {dataset_name}")
         try:
@@ -229,14 +229,14 @@ if __name__ == '__main__':
         Train Support Vector Machine with RBF kernel
         '''
         # Train SVM on the full dataset and store the best model
-        # print("Training SVM on the full dataset...")
-        # best_model, best_params, full_score = train_svm(X_train, y_train, X_test, y_test)
+        print("Training SVM on the full dataset...")
+        best_model, best_params, full_score = train_svm(X_train, y_train, X_test, y_test)
 
-        # # Save the trained model to a file
-        # model_filename = f"trained_models/svm_{dataset_name}.pkl"
-        # with open(model_filename, "wb") as f:
-        #     pickle.dump(best_model, f)
-        # print(f"Saved best SVM model for {dataset_name} to {model_filename}")
+        # Save the trained model to a file
+        model_filename = f"trained_models/svm_{dataset_name}.pkl"
+        with open(model_filename, "wb") as f:
+            pickle.dump(best_model, f)
+        print(f"Saved best SVM model for {dataset_name} to {model_filename}")
 
         # Prepare an Excel sheet for the current dataset
         sheet = wb.create_sheet(title=dataset_name)
