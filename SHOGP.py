@@ -80,7 +80,7 @@ class SHOGP():
 
             ## mini-batch training 
             print("training with mini-batch")
-            batch_size = np.min((1024, X.shape[0]))  # Define the batch size
+            batch_size = np.min((512, X.shape[0]))  # Define the batch size
             dataset = tf.data.Dataset.from_tensor_slices((X, y))
             dataset = dataset.shuffle(buffer_size=len(X)).batch(batch_size)
 
