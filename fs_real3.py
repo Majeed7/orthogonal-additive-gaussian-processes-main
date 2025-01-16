@@ -102,124 +102,6 @@ def train_svm(X_train, y_train, X_test, y_test):
 
     return best_model, best_params, score
 
-''' 
-def load_dataset(name):
-    """
-    Load dataset by name.
-
-    Parameters:
-        name: Name of the dataset
-
-    Returns:
-        X, y: Feature matrix and labels
-    """
-    down_sample = False
-    down_sample_rate = 1 
-    imbalance = False
-    if name == "madelon":
-        dataset = fetch_openml(name="madelon", version=1, as_frame=True)
-
-    elif name == "nomao":
-        dataset = fetch_openml(name="nomao", version=1, as_frame=True)
-        down_sample=True
-        imbalance = True
-        down_sample_rate = 0.3
-    
-    elif name == "waveform":
-        dataset = fetch_openml(name="waveform-5000", version=1, as_frame=True)
-
-    elif name == "steel":
-        dataset = fetch_openml(name="steel-plates-fault", version=1, as_frame=True)
-
-    elif name == "sonar":
-        url = "https://archive.ics.uci.edu/ml/machine-learning-databases/undocumented/connectionist-bench/sonar/sonar.all-data"
-        dataset = pd.read_csv(url, header=None)
-        X = dataset.iloc[:, :-1]
-        y = dataset.iloc[:, -1]
-        return X.values, y.values
-    
-    elif name == "ionosphere":
-        ds = io.loadmat(f'{data_dir}/ionosphere.mat')
-        return ds["X"], ds["y"]
-
-    elif name == "gas":
-        data = pd.read_csv(f'{data_dir}/gas.csv.gz', sep=',')
-        X = data.iloc[:, :-1]
-        y = data.iloc[:, -1]
-        return X.values, y.values
-    
-    elif name == "breast_cancer_wisconsin3": #classification
-        breast_cancer_wisconsin_diagnostic = fetch_ucirepo(id=17) 
-        # data (as pandas dataframes) 
-        X = breast_cancer_wisconsin_diagnostic.data.features 
-        y = breast_cancer_wisconsin_diagnostic.data.targets 
-        return X.values, y.values
-    
-    elif name == "breast_cancer": #regression
-        data = pd.read_csv(f'{data_dir}/breastcancer.csv.gz', sep=',')
-        X = data.iloc[:, :-1]
-        y = data.iloc[:, -1]
-        return X.values, y.values
-    
-    elif name == "pol": #regression
-        data = pd.read_csv(f'{data_dir}/pol.csv.gz', sep=',')
-        X = data.iloc[:, :-1]
-        y = data.iloc[:, -1]
-        return X.values, y.values   
-    
-    elif name == "pumadyn32nm": #regression
-        data = pd.read_csv(f'{data_dir}/pumadyn32nm.csv.gz', sep=',')
-        X = data.iloc[:, :-1]
-        y = data.iloc[:, -1]
-        return X.values, y.values
-
-    elif name == "skillcraft": #regression
-        data = pd.read_csv(f'{data_dir}/skillcraft.csv.gz', sep=',')
-        X = data.iloc[:, :-1]
-        y = data.iloc[:, -1]
-        return X.values, y.values
-    
-    elif name == "sml": #regression
-        data = pd.read_csv(f'{data_dir}/sml.csv.gz', sep=',')
-        X = data.iloc[:, :-1]
-        y = data.iloc[:, -1]
-        return X.values, y.values
-    
-    elif name == "keggdirected": #regression
-        data = pd.read_csv(f'{data_dir}/keggdirected.csv.gz', sep=',')
-        X = data.iloc[:, :-1]
-        y = data.iloc[:, -1]
-        return X.values, y.values
-    
-    elif name == "keggundirected": #regression
-        data = pd.read_csv(f'{data_dir}/keggundirected.csv.gz', sep=',')
-        X = data.iloc[:, :-1]
-        y = data.iloc[:, -1]
-        return X.values, y.values
-    
-    elif name == "parkinson": #regression
-        data = pd.read_csv(f'{data_dir}/parkinson.csv.gz', sep=',')
-        X = data.iloc[:, :-1]
-        y = data.iloc[:, -1]
-        return X.values, y.values
-    
-    elif name == "crime":
-        X, y = shap.datasets.communitiesandcrime()
-        return X.values, y
-    else:
-        raise ValueError(f"Unknown dataset: {name}")
-
-    X, y = dataset.data, dataset.target
-
-    if down_sample:
-        if imbalance:
-            rus = RandomUnderSampler(random_state=42)
-            X_downsampled, y_downsampled = rus.fit_resample(X, y)
-        
-        X, _, y, _ = train_test_split(X_downsampled, y_downsampled, train_size=down_sample_rate, random_state=42)
-
-    return np.array(X), np.array(y)
-'''
 
 # Ensure a directory exists for saving models
 os.makedirs("trained_models", exist_ok=True)
@@ -237,7 +119,7 @@ if __name__ == '__main__':
     
     # nomao: 34465 * 118 binary
 
-    dataset_names = ["breast_cancer", "sonar", "nomao", "waveform"] #"steel", "ionosphere", "gas", "pol", "sml"]
+    dataset_names = ["breast_cancer",  "nomao", "waveform"] # "sonar", "steel", "ionosphere", "gas", "pol", "sml"]
     dataset_names2 = ["breast_cancer_wisconsin", "pumadyn32nm", "skillcraft"]
     dataset_names3 = ['keggdirected', 'parkinson', "crime"]
 
@@ -356,7 +238,7 @@ if __name__ == '__main__':
             sheet.append([selector, execution_time] + list(global_importance))
 
         # Save the Excel file after processing each dataset
-        excel_filename = "feature_importance_3.4.xlsx"
+        excel_filename = "feature_importance_3.5.xlsx"
         wb.save(excel_filename)
         print(f"Global feature importance for {dataset_name} saved to {excel_filename}")
         del shogp
