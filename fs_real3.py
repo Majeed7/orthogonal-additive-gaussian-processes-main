@@ -225,7 +225,7 @@ def load_dataset(name):
 os.makedirs("trained_models", exist_ok=True)
 
 # Define the list of feature selectors
-feature_selectors = ["AGP-SHAP"] #["HSICLasso", "mutual_info", "lasso", "k_best", "tree_ensemble"] #["AGP-SHAP", "Sobol",] #, "rfecv"]
+feature_selectors = ["AGP-SHAP", "HSICLasso"] #["HSICLasso", "mutual_info", "lasso", "k_best", "tree_ensemble"] #["AGP-SHAP", "Sobol",] #, "rfecv"]
 
 # Initialize an Excel workbook to store global importance values
 wb = Workbook()
@@ -253,8 +253,8 @@ if __name__ == '__main__':
 
         # Determine if the dataset is for classification or regression
         mode = "classification" if type_of_target(y) in ["binary", "multiclass"] else "regression"
+        if mode == 'regression': continue
         if mode != "regression":
-            continue
             label_encoder = LabelEncoder()
             label_encoder.fit_transform(y)
             y = label_encoder.fit_transform(y).reshape(-1, 1)
@@ -266,15 +266,15 @@ if __name__ == '__main__':
         '''
         Train Support Vector Machine with RBF kernel
         '''
-        # Train SVM on the full dataset and store the best model
-        # print("Training SVM on the full dataset...")
-        # best_model, best_params, full_score = train_svm(X_train, y_train, X_test, y_test)
+        ##Train SVM on the full dataset and store the best model
+        print("Training SVM on the full dataset...")
+        best_model, best_params, full_score = train_svm(X_train, y_train, X_test, y_test)
 
-        # # Save the trained model to a file
-        # model_filename = f"trained_models/svm_{dataset_name}.pkl"
-        # with open(model_filename, "wb") as f:
-        #     pickle.dump(best_model, f)
-        # print(f"Saved best SVM model for {dataset_name} to {model_filename}")
+        # Save the trained model to a file
+        model_filename = f"trained_models/classification/svm_{dataset_name}.pkl"
+        with open(model_filename, "wb") as f:
+            pickle.dump(best_model, f)
+        print(f"Saved best SVM model for {dataset_name} to {model_filename}")
 
         # Prepare an Excel sheet for the current dataset
         sheet = wb.create_sheet(title=dataset_name)
@@ -293,10 +293,10 @@ if __name__ == '__main__':
                 
                 if 'shogp' not in locals():
                     start_time = time.time()
-                    shogp = SHOGP(X_train, y_train, inte_order=int_order, inducing_points=200)
+                    shogp = SHOGP(X_train, y_train, inte_order=int_order, inducing_points=600)
                     print(f"SHOGP model created in {time.time() - start_time} seconds")
                     # Save the model
-                    with open(f"trained_models/shogp_{dataset_name}.pkl", "wb") as f:
+                    with open(f"trained_models/classification/_shogp_{dataset_name}.pkl", "wb") as f:
                         dill.dump(shogp, f)
                     
                     # load the model    
