@@ -61,8 +61,7 @@ class SHOGP():
         if target_type == "continuous":
             OGP.fit(X, y, optimise=True)
             
-        elif target_type == "x":
-            
+        else:
             OGP.fit(X, y.reshape(-1,1), optimise=False)
         
             ## Set the inducing points
