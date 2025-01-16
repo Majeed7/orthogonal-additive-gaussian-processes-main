@@ -220,7 +220,6 @@ class SHOGP():
                           mu = self.ORBF.measure.mu)
             gamma_list.append(gamma.astype(np.float64))
 
-        self.v0_G = self.OGP.m.likelihood.variance.numpy()
         variances = self.OGP.m.kernel.variances[1:] ## The first variance corresponds to the bias term
 
         ## For global explainability, in order to preserve the additive attribution, we need to keep the original data input
@@ -255,6 +254,7 @@ class SHOGP():
             shapley_vals = shapley_vals / np.sum(shapley_vals)
             shapley_vals_rescaled = shapley_vals 
         else:
+            self.v0_G = self.OGP.m.likelihood.variance.numpy()
             shapley_vals = shapley_vals / (np.sum(shapley_vals) + self.v0_G) # normalizing Shapley value
             shapley_vals_rescaled = shapley_vals * self.OGP.scaler_y.var_
 

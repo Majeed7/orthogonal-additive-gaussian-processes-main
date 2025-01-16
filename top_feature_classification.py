@@ -154,7 +154,7 @@ def main():
 
             # Select the top 10% most influential features
             num_features = len(feature_importance)
-            top_n = int(max(1, num_features // (1 / top_precent)))  # At least one feature
+            top_n = int(max(1, num_features // (1 / top_precent) ))  # At least one feature
             top_indices = np.argsort(np.abs(feature_importance))[-top_n:]
 
             # Subset the dataset with the selected features
