@@ -296,7 +296,7 @@ if __name__ == '__main__':
                     shogp = SHOGP(X_train, y_train, inte_order=int_order, inducing_points=600)
                     print(f"SHOGP model created in {time.time() - start_time} seconds")
                     # Save the model
-                    with open(f"trained_models/classification/_shogp_{dataset_name}.pkl", "wb") as f:
+                    with open(f"trained_models/classification/shogp_{dataset_name}.pkl", "wb") as f:
                         dill.dump(shogp, f)
                     
                     # load the model    
