@@ -119,6 +119,9 @@ class SHOGP():
         self.ORBF = orthogonal_rbf_kernel
         self.n, self.d = n, d
 
+    '''
+    Global Shapley Value Calculation
+    '''
     def local_Shapley_values(self, X):
         ## Starting Shapley Value Calculation
         X_trans = self.OGP._transform_x(X)
@@ -303,7 +306,9 @@ class SHOGP():
 
         return gamma_hat , dp
     
-
+    '''
+    Get Feature Removal Effect 
+    '''
     def prediction_featuresubset(self, x, active_dim):
         X_train_trans = self.X_base #self.OGP._transform_x(self.X_base)
         x_trans = self.OGP._transform_x(x[np.newaxis,:]).squeeze()
@@ -366,7 +371,9 @@ class SHOGP():
 
         return omega , dp
 
-
+    '''
+    Sobol Computation 
+    '''
     def get_sobol(self):
         gamma_list = []
         for i in range(self.d):

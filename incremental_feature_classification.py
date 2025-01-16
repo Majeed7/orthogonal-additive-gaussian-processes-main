@@ -171,6 +171,7 @@ def main():
 
     # Process datasets in the Excel sheet
     for sheet_name in wb.sheetnames:
+        if sheet_name in ['keggdirected']: continue 
         print(f"Processing dataset: {sheet_name}")
         sheet = wb[sheet_name]
 
