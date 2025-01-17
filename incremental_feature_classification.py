@@ -182,8 +182,9 @@ def main():
             # Determine if it's classification or regression
             is_classification = type_of_target(y) in ["binary", "multiclass"]
             if is_classification:
-                continue
                 y = LabelEncoder().fit_transform(y)
+            else:
+                continue
 
             ## Load the best pre-trained SVM model to get its hyperparameters
             #pre_trained_svm = load_best_svm_model(

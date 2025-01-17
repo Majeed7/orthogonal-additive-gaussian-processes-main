@@ -33,7 +33,6 @@ if [ -z "$parameter" ]; then
     parameter=0.1  # Default value
 fi
 
-
 # Run the Python script
 echo "Running Python script..."
 python ~/orthogonal-additive-gaussian-processes-main/top_feature_classification.py "$parameter"
