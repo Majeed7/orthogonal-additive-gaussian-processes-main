@@ -119,7 +119,7 @@ if __name__ == '__main__':
     
     # nomao: 34465 * 118 binary
 
-    dataset_names = ["breast_cancer",  "nomao", "waveform"] # "sonar", "steel", "ionosphere", "gas", "pol", "sml"]
+    dataset_names = ["breast_cancer",  "waveform"] # "nomao",  "sonar", "steel", "ionosphere", "gas", "pol", "sml"]
     dataset_names2 = ["breast_cancer_wisconsin", "pumadyn32nm", "skillcraft"]
     dataset_names3 = ['keggdirected', 'parkinson', "crime"]
 
