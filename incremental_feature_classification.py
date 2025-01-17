@@ -171,64 +171,69 @@ def main():
 
     # Process datasets in the Excel sheet
     for sheet_name in wb.sheetnames:
-        if sheet_name in ['keggdirected']: continue 
-        print(f"Processing dataset: {sheet_name}")
-        sheet = wb[sheet_name]
+        try:
+            if sheet_name in ['keggdirected']: continue 
+            print(f"Processing dataset: {sheet_name}")
+            sheet = wb[sheet_name]
 
-        # Reload the dataset
-        X, y = reload_dataset(sheet_name)
+            # Reload the dataset
+            X, y = reload_dataset(sheet_name)
 
-        # Determine if it's classification or regression
-        is_classification = type_of_target(y) in ["binary", "multiclass"]
-        if is_classification:
+            # Determine if it's classification or regression
+            is_classification = type_of_target(y) in ["binary", "multiclass"]
+            if is_classification:
+                continue
+                y = LabelEncoder().fit_transform(y)
+
+            ## Load the best pre-trained SVM model to get its hyperparameters
+            #pre_trained_svm = load_best_svm_model(
+            #    model_path=f'trained_models/regression/svm_{sheet_name}.pkl')
+            #svm_params = get_svm_hyperparameters(pre_trained_svm)
+            svm_params = None
+
+            # Train-test split
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, test_size=0.1, random_state=42)
+
+            result_sheet = results_wb.create_sheet(title=sheet_name)
+
+            # Set column titles dynamically
+            score_titles = ["Accuracy"] if is_classification else ["MSE"]
+            result_sheet.append(["Feature Selector"] + score_titles)
+
+            # Process each feature selector (row) in the sheet
+            for row in sheet.iter_rows(min_row=2, values_only=True):
+                feature_selector = row[0]
+                if feature_selector is None:
+                    break
+                feature_importance = np.array(row[2:])
+
+                # Use the ranking directly from the feature_importance array
+                # Sorting by importance
+                ranked_features = np.argsort(-np.abs(feature_importance))
+
+                # Incrementally evaluate performance with the selected features
+                performance = select_features_incrementally(
+                    X_train, y_train, X_test, y_test, ranked_features, svm_params, is_classification)
+
+                row_index = 1
+                items = ["Feature Selector"] + [result['num_features']
+                                                for result in performance]
+                # Insert the items in one row
+                for col_index, item in enumerate(items, start=1):
+                    result_sheet.cell(row=row_index, column=col_index, value=item)
+
+                # Add results for this feature selector
+                # for result in performance:
+                result_sheet.append(
+                    [feature_selector] + [result[score_titles[0]] for result in performance])
+
+                # Save the results to a new Excel file
+                results_wb.save(f"class_svm_feature_selector_results.xlsx")
+
+        except:
+            print(f"{sheet_name} could not be processed!")
             continue
-            y = LabelEncoder().fit_transform(y)
-
-        # Load the best pre-trained SVM model to get its hyperparameters
-        pre_trained_svm = load_best_svm_model(
-            model_path=f'trained_models/regression/svm_{sheet_name}.pkl')
-        svm_params = get_svm_hyperparameters(pre_trained_svm)
-
-        # Train-test split
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.1, random_state=42)
-
-        result_sheet = results_wb.create_sheet(title=sheet_name)
-
-        # Set column titles dynamically
-        score_titles = ["Accuracy"] if is_classification else ["MSE"]
-        result_sheet.append(["Feature Selector"] + score_titles)
-
-        # Process each feature selector (row) in the sheet
-        for row in sheet.iter_rows(min_row=2, values_only=True):
-            feature_selector = row[0]
-            if feature_selector is None:
-                break
-            feature_importance = np.array(row[2:])
-
-            # Use the ranking directly from the feature_importance array
-            # Sorting by importance
-            ranked_features = np.argsort(-np.abs(feature_importance))
-
-            # Incrementally evaluate performance with the selected features
-            performance = select_features_incrementally(
-                X_train, y_train, X_test, y_test, ranked_features, svm_params, is_classification)
-
-            row_index = 1
-            items = ["Feature Selector"] + [result['num_features']
-                                            for result in performance]
-            # Insert the items in one row
-            for col_index, item in enumerate(items, start=1):
-                result_sheet.cell(row=row_index, column=col_index, value=item)
-
-            # Add results for this feature selector
-            # for result in performance:
-            result_sheet.append(
-                [feature_selector] + [result[score_titles[0]] for result in performance])
-
-    # Save the results to a new Excel file
-    results_wb.save(f"class_svm_feature_selector_results.xlsx")
-
 
 if __name__ == "__main__":
     main()
