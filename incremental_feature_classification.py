@@ -3,7 +3,7 @@ import pickle
 import numpy as np
 import pandas as pd
 from sklearn.svm import SVC, SVR
-from sklearn.metrics import accuracy_score, mean_squared_error
+from sklearn.metrics import accuracy_score, mean_squared_error, mean_absolute_percentage_error
 from sklearn.model_selection import train_test_split
 from openpyxl import load_workbook, Workbook
 from sklearn.preprocessing import LabelEncoder
@@ -29,7 +29,7 @@ def calculate_classification_scores(y_true, y_pred):
 
 def calculate_regression_scores(y_true, y_pred):
     """Calculate regression MSE."""
-    return {"MSE": mean_squared_error(y_true, y_pred)}
+    return {"MSE": mean_absolute_percentage_error(y_true, y_pred)}
 
 
 def load_best_svm_model(model_path='trained_models/best_svm_model.pkl'):
@@ -183,8 +183,8 @@ def main():
             is_classification = type_of_target(y) in ["binary", "multiclass"]
             if is_classification:
                 y = LabelEncoder().fit_transform(y)
-            else:
-                continue
+            #else:
+            #    continue
 
             ## Load the best pre-trained SVM model to get its hyperparameters
             #pre_trained_svm = load_best_svm_model(
@@ -230,7 +230,7 @@ def main():
                     [feature_selector] + [result[score_titles[0]] for result in performance])
 
                 # Save the results to a new Excel file
-                results_wb.save(f"class_svm_feature_selector_results.xlsx")
+                results_wb.save(f"incremental_feature_addition.xlsx")
 
         except:
             print(f"{sheet_name} could not be processed!")
