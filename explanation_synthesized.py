@@ -36,7 +36,7 @@ if gpus:
 else:
     print("CUDA is not available.")
 
-results_xsl = Path('agp_explanation_synthesized_v3.xlsx')
+results_xsl = Path('agp_explanation_synthesized_v4.xlsx')
 if not os.path.exists(results_xsl):
     # Create an empty Excel file if it doesn't exist
     pd.DataFrame().to_excel(results_xsl, index=False)
@@ -50,7 +50,7 @@ if __name__ == '__main__':
     feature_no_gn = 10 # number of features for the synthesized instances
 
     # Example usage of one of the functions
-    datasets=['Sine Log', 'Sine Cosine', 'Trigonometric Exponential', 'Exponential Hyperbolic'] #['Sine Log', 'Sine Cosine', 'Poly Sine', 'Squared Exponentials', 'Tanh Sine', \
+    datasets=['Squared Exponentials', 'XOR', "Syn4"] #['Sine Log', 'Sine Cosine', 'Poly Sine', 'Squared Exponentials', 'Tanh Sine', \
               #'Trigonometric Exponential', 'Exponential Hyperbolic', 'XOR']
     for ds_name in datasets:
         #X, y, fn, feature_imp, ds_name = generate_data(n=sample_no_gn, d=feature_no_gn, datatype=ds)
