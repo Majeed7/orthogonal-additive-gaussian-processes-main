@@ -27,8 +27,8 @@ plt.rcParams.update({
     'axes.labelweight': 'bold',  # Ensure the axis labels are bold
     'axes.titleweight': 'bold',  # Ensure the titles are bold
     'figure.titleweight': 'bold',  # Bold for suptitle if you use fig.suptitle()
-    'xtick.labelsize': 12,  # Font size for X-tick labels
-    'ytick.labelsize': 12,  # Font size for Y-tick labels
+    'xtick.labelsize': 9,  # Font size for X-tick labels
+    'ytick.labelsize': 8,  # Font size for Y-tick labels
     'xtick.major.size': 5,  # Length of major ticks
     'ytick.major.size': 5,  # Length of major ticks
     'xtick.minor.size': 3,  # Length of minor ticks
@@ -47,7 +47,7 @@ axes = axes.flatten()
 
 # Iterate through each sheet in the Excel file
 palette = sns.color_palette("Set2", n_colors=len(sheet_names))
-for ax, sheet_name, color in zip(axes, xls.sheet_names, palette):
+for i , (ax, sheet_name, color) in enumerate(zip(axes, xls.sheet_names, palette)):
     # Read sheet into DataFrame
     df = xls.parse(sheet_name)
     
@@ -59,14 +59,19 @@ for ax, sheet_name, color in zip(axes, xls.sheet_names, palette):
     sns.boxplot(width=.8, data=df_transposed, ax=ax, palette=[color]).set(xlabel=' ')
 
     # Add a horizontal line for mean value
-    ax.axhline(y=ideal_avg_rank[sheet_name], color='red', linestyle='--', linewidth=2, label='Mean')
+    ax.axhline(y=ideal_avg_rank[sheet_name], color='red', linestyle=':', linewidth=2, label='Mean')
     
     ax.set_title(f'Synthesized dataset {sheet_names.index(sheet_name) + 1}')
-    ax.set_ylabel('Results')  # Optional: Add Y-axis label for clarity
-    ax.tick_params(axis='x', rotation=30)  # Rotates the method names for better visibility
+        # Add Y-axis label only for the first column (most left plot)
+    if i % 4 == 0:  # Adjust for the number of columns in your grid layout
+        ax.set_ylabel('Average Rank of Influential Features')
+    # Optional: Add Y-axis label for clarity
+    ax.tick_params(axis='x', rotation=45)  # Rotates the method names for better visibility
+    ax.set_ylim(bottom=0)
+
 
 fig.subplots_adjust(top=0.95, bottom=0.15, wspace=0.3, hspace=0.4)  # Adjust space
 
-fig.savefig("results/exp_syn/plot_updated_layout.png", dpi=500, format='png', bbox_inches='tight')
+fig.savefig("results/exp_syn/exp_syn.png", dpi=500, format='png', bbox_inches='tight')
 
 print("done!")

@@ -59,7 +59,7 @@ def train_svm_on_selected_features(X_train, y_train, X_test, y_test, is_classifi
     if is_classification:
         param_grid = {
             "svm__C": [0.1, 1, 10, 100],  # Regularization parameter
-            #"svm__gamma": ["scale", "auto"],  # Kernel coefficient
+            "svm__gamma": ["scale", "auto"],  # Kernel coefficient
          }
     else:
         param_grid = {
@@ -116,7 +116,7 @@ def main():
             print("Cannot process the value. Using default value: 0.1")
 
     # Load the Excel file with feature importance data
-    feature_importance_file = "results/real_feature_importances.xlsx"
+    feature_importance_file = "results/fs_real/feature_importance.xlsx"
     wb = load_workbook(feature_importance_file)
 
     # Create a new workbook for storing results
@@ -134,6 +134,8 @@ def main():
         is_classification = type_of_target(y) in ["binary", "multiclass"]
         if is_classification:
             y = LabelEncoder().fit_transform(y)
+        else:
+            continue
 
         # Train-test split
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
@@ -168,7 +170,7 @@ def main():
             result_sheet.append([feature_selector] + [scores[title] for title in score_titles])
 
     # Save the results to a new Excel file
-    results_wb.save(f"svm_feature_selector_results_{top_precent}.xlsx")
+    results_wb.save(f"svm_feature_selector_results_{top_precent}_classification.xlsx")
 
 if __name__ == "__main__":
     main()
