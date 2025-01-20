@@ -169,8 +169,8 @@ def main():
             # Add results for this feature selector as a single row
             result_sheet.append([feature_selector] + [scores[title] for title in score_titles])
 
-    # Save the results to a new Excel file
-    results_wb.save(f"svm_feature_selector_results_{top_precent}_classification.xlsx")
+        # Save the results to a new Excel file
+        results_wb.save(f"svm_feature_selector_results_{top_precent}_classification.xlsx")
 
 if __name__ == "__main__":
     main()
