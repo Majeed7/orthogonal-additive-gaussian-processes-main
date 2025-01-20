@@ -6,7 +6,7 @@ from sklearn.svm import SVC, SVR
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import accuracy_score, roc_auc_score, precision_score, recall_score, f1_score
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score, explained_variance_score
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score, explained_variance_score, mean_absolute_percentage_error
 from sklearn.model_selection import train_test_split
 from openpyxl import load_workbook, Workbook
 from sklearn.preprocessing import LabelEncoder
@@ -37,7 +37,7 @@ def calculate_regression_scores(y_true, y_pred):
         "MSE": mean_squared_error(y_true, y_pred),
         "MAE": mean_absolute_error(y_true, y_pred),
         "R-Squared": r2_score(y_true, y_pred),
-        "RMSE": mean_squared_error(y_true, y_pred),
+        "PMSE": mean_absolute_percentage_error(y_true, y_pred),
         "Explained Variance": explained_variance_score(y_true, y_pred)
     }
 
@@ -144,7 +144,7 @@ def main():
 
         # Set column titles dynamically
         score_titles = ["Accuracy", "AUROC", "Precision", "Recall", "F1-Score"] if is_classification else \
-                       ["MSE", "MAE", "R-Squared", "RMSE", "Explained Variance"]
+                       ["MSE", "MAE", "R-Squared", "PMSE", "Explained Variance"]
         result_sheet.append(["Feature Selector"] + score_titles)
 
         # Process each feature selector (row) in the sheet
