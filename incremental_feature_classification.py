@@ -172,7 +172,7 @@ def main():
     # Process datasets in the Excel sheet
     for sheet_name in wb.sheetnames:
         try:
-            if sheet_name in ['keggdirected']: continue 
+            if sheet_name not in ['parkinson','keggdirected']: continue 
             print(f"Processing dataset: {sheet_name}")
             sheet = wb[sheet_name]
 
@@ -230,7 +230,7 @@ def main():
                     [feature_selector] + [result[score_titles[0]] for result in performance])
 
                 # Save the results to a new Excel file
-                results_wb.save(f"incremental_feature_addition_rf.xlsx")
+                results_wb.save(f"incremental_feature_addition_rf_parkinson_kegg.xlsx")
 
         except:
             print(f"{sheet_name} could not be processed!")
