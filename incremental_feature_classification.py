@@ -140,7 +140,7 @@ def select_features_incrementally(X_train, y_train, X_test, y_test, ranked_featu
         X_test_subset = X_test[:, selected_features]
 
         # Train the SVM on the selected features and evaluate
-        scores = train_svm_on_selected_features(
+        scores = train_svm_on_selected_features2(
             X_train_subset, y_train, X_test_subset, y_test, svm_params, is_classification)
 
         # Track performance for this number of selected features
@@ -230,7 +230,7 @@ def main():
                     [feature_selector] + [result[score_titles[0]] for result in performance])
 
                 # Save the results to a new Excel file
-                results_wb.save(f"incremental_feature_addition.xlsx")
+                results_wb.save(f"incremental_feature_addition_rf.xlsx")
 
         except:
             print(f"{sheet_name} could not be processed!")
