@@ -4,7 +4,7 @@ import seaborn as sns
 import numpy as np
 
 # Load the Excel file
-file_path = 'results/fs_real/incremental_feature_addition.xlsx'
+file_path = 'results/fs_real/incremental_feature_addition_rf.xlsx'
 excel_data = pd.ExcelFile(file_path)
 
 is_classification = True
