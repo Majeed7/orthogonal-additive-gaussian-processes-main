@@ -40,7 +40,7 @@ def feature_removing_effect(feature_importance, x, num_remove_feature, shogp):
     if x.ndim == 1:
         x = np.array(x).reshape(1,-1)
 
-    rank = np.argsort(np.abs(feature_importance))
+    rank = np.argsort(-np.abs(feature_importance))
     y_x = shogp.OGP.predict(x)
     predic_diff = [y_x.item()]
         
@@ -70,7 +70,7 @@ if __name__ == "__main__":
 
     dataset_names = ["breast_cancer", "nomao",  "sonar"]
     dataset_names2 = ["breast_cancer_wisconsin", "pumadyn32nm"]
-    dataset_names3 = ["crime", "gas", "pol", 'parkinson', 'keggdirected']
+    dataset_names3 = ["crime", "gas"]
     dataset_names4 =  ['keggdirected']
     dataset_names5 = ["skillcraft", "sml"]
     dataset_names6 = ["steel", "ionosphere"]
@@ -86,7 +86,7 @@ if __name__ == "__main__":
     # elif ds_index == 3:
     #     datasets = dataset_names3
 
-    sampleNo_tbx = 30
+    sampleNo_tbx = 20
     num_samples = 300
 
     for ds in datasets:
@@ -267,15 +267,14 @@ if __name__ == "__main__":
         time_results = [shogp_time, kshap_time, sshap_time, bishap_time, ushap_time, lime_time, maple_time]
 
         ## Storing the difference and execution time of the methods
-        excel_path_feature_removal = Path(f'tabular_feature_removal {ds}.xlsx')
-        excel_path_feature_removal_time = Path(f'tabular_feature_removal time {ds}.xlsx')
+        excel_path_feature_removal = Path(f"tabular_feature_removal {ds}_mostimportant.xlsx")
+        excel_path_feature_removal_time = Path(f"tabular_feature_removal time {ds}_mostimportant.xlsx")
         mode = 'a' if excel_path_feature_removal.exists() else 'w'
         names = ['SHOGP', 'Kernel SHAP','Sampling SHAP', 'Bivariate SHAP', 'Unbiased SHAP', 'LIME', 'MAPLE']
         with pd.ExcelWriter(excel_path_feature_removal, engine='openpyxl', mode=mode) as writer:
             for i, l in enumerate(all_results):
                 df = pd.DataFrame(all_results[i])
                 df.to_excel(writer, sheet_name = names[i])    
-
 
         mode = 'a' if excel_path_feature_removal_time.exists() else 'w'
         with pd.ExcelWriter(excel_path_feature_removal_time, engine='openpyxl', mode=mode) as writer:
